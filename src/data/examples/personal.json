@@ -1,0 +1,43 @@
+{
+  "title": "Personal Tasks ✨",
+  "subjects": [
+    {
+      "id": 1732609685725.001,
+      "content": "<h3>🏥 Annual Health Checkup</h3><ul><li>Call Dr. Smith's office (555-0123)</li><li>Request morning appointment</li><li>Get blood work requisition</li></ul><p><em>Priority: High</em> ⚡</p>",
+      "tags": ["health", "appointments", "priority"],
+      "createdAt": "2024-11-25T08:07:29.609Z",
+      "completed": false,
+      "images": [],
+      "order": 0
+    },
+    {
+      "id": 1732609685725.002,
+      "content": "<h3>🏃‍♂️ Weekend Hiking Plan</h3><table style=\"border-collapse: collapse; width: 100%;\" border=\"1\"><tbody><tr><td style=\"padding: 8px;\"><strong>Item</strong></td><td style=\"padding: 8px;\"><strong>Status</strong></td></tr><tr><td style=\"padding: 8px;\">Weather Check</td><td style=\"padding: 8px;\">✅ Done</td></tr><tr><td style=\"padding: 8px;\">Trail Map</td><td style=\"padding: 8px;\">✅ Downloaded</td></tr><tr><td style=\"padding: 8px;\">Gear Prep</td><td style=\"padding: 8px;\">⏳ In Progress</td></tr></tbody></table><p style=\"color: #22c55e;\">Trail selected: Pine Mountain Loop 🌲</p>",
+      "tags": ["outdoor", "exercise", "weekend"],
+      "createdAt": "2024-11-25T08:05:54.352Z",
+      "completed": false,
+      "images": [],
+      "order": 1000
+    },
+    {
+      "id": 1732609685725.004,
+      "content": "<h3>🏠 Garage Organization</h3><p><strong style=\"color: #3b82f6;\">Progress:</strong></p><ul><li>✅ Sort winter equipment</li><li>✅ Clear workbench area</li><li>✅ Install new shelving</li><li>✅ Label storage boxes</li></ul><p style=\"color: #22c55e;\">Donation box ready for drop-off! 📦</p>",
+      "tags": ["home", "organization", "declutter"],
+      "createdAt": "2024-11-25T07:52:12.708Z",
+      "completed": true,
+      "images": [],
+      "order": 3000
+    },
+    {
+      "id": 1732609685725.005,
+      "content": "<h3>💼 Career Development</h3><blockquote style=\"border-left: 4px solid #3b82f6; padding-left: 16px; margin: 16px 0;\"><p>Update professional profiles with recent achievements</p></blockquote><ul><li>✅ Update resume with new certifications</li><li>✅ Refresh LinkedIn summary</li><li>✅ Add recent project highlights</li><li>✅ Update profile photo</li></ul><p><em style=\"color: #22c55e;\">All updates completed! 🎯</em></p>",
+      "tags": ["career", "important", "professional"],
+      "createdAt": "2024-11-25T07:51:14.214Z",
+      "completed": true,
+      "images": [],
+      "order": 4000
+    }
+  ],
+  "hideCompleted": false,
+  "sortOption": "manual"
+} 

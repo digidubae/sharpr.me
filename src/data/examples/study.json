@@ -1,0 +1,45 @@
+{
+  "subjects": [
+    {
+      "id": 1734696178910.7786,
+      "content": "<h3>🤖 Machine Learning Fundamentals</h3>\n<p><strong>Key Concepts:</strong></p>\n<ul>\n<li>🔄 Supervised vs Unsupervised Learning\n<ul>\n<li>Classification vs Clustering</li>\n<li>Regression vs Dimensionality Reduction</li>\n</ul>\n</li>\n<li>📊 Training and Test Sets\n<ul>\n<li>Cross-validation techniques</li>\n</ul>\n</li>\n</ul>\n<p style=\"color: #3b82f6;\">&nbsp;</p>",
+      "tags": [
+        "ml",
+        "fundamentals",
+        "ai"
+      ],
+      "createdAt": "2024-11-25T08:07:29.609Z",
+      "completed": false,
+      "images": [],
+      "order": 0
+    },
+    {
+      "id": 1734696178910.8213,
+      "content": "<h3>🗃️ Advanced SQL</h3>\n<pre style=\"margin: 0;\">&nbsp;</pre>\n<p>SELECT&nbsp;<br>&nbsp; department,<br>&nbsp; AVG(salary) OVER (<br>&nbsp; &nbsp; PARTITION BY department<br>&nbsp; &nbsp; ORDER BY hire_date<br>&nbsp; &nbsp; ROWS BETWEEN 3 PRECEDING&nbsp;<br>&nbsp; &nbsp; AND CURRENT ROW<br>&nbsp; ) as moving_avg<br>FROM employees;</p>\n<pre style=\"margin: 0;\"><br>🔄 Complex JOINs</pre>\n<ul>\n<li>📊 Window Functions</li>\n<li>⚡ Performance Tips</li>\n</ul>\n<p style=\"color: #22c55e;\">Practice with real datasets! 💪</p>",
+      "tags": [
+        "database",
+        "sql",
+        "advanced"
+      ],
+      "createdAt": "2024-11-25T07:53:28.531Z",
+      "completed": false,
+      "images": [],
+      "order": 2000
+    },
+    {
+      "id": 1734696178910.114,
+      "content": "<h3>🏗️ System Design</h3>\n<h4>Key Architecture Patterns:</h4>\n<ul>\n<li>📈 <strong>Scalability</strong>\n<ul>\n<li>Horizontal vs Vertical</li>\n<li>Auto-scaling strategies</li>\n</ul>\n</li>\n<li>⚖️ <strong>Load Balancing</strong>\n<ul>\n<li>Round-robin</li>\n<li>Least connections</li>\n</ul>\n</li>\n<li>💾 <strong>Caching</strong>\n<ul>\n<li>Redis vs Memcached</li>\n<li>Cache invalidation</li>\n</ul>\n</li>\n</ul>\n<h3>&nbsp;</h3>\n<h3><em>Review: High Scalability Blog</em> 📚</h3>",
+      "tags": [
+        "architecture",
+        "design",
+        "scalability"
+      ],
+      "createdAt": "2024-11-25T07:52:12.708Z",
+      "completed": false,
+      "images": [],
+      "order": 3000
+    }
+  ],
+  "title": "Study Notes 📚",
+  "categories": []
+}
