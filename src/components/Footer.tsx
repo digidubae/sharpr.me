@@ -10,13 +10,13 @@ export default function Footer() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const pathname = usePathname();
   const isInSpace = pathname.startsWith('/s/');
-
+  const isInPrivacyPolicy = pathname === '/privacy-policy'
   return (
     <>
       <footer className="py-4 px-8">
         <div className="max-w-4xl mx-auto flex flex-col items-center gap-1">
           <div className="flex items-center gap-4">
-            {(isInSpace) && (
+            {(isInSpace || isInPrivacyPolicy) && (
               <Link
                 href="/"
                 className="text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 
@@ -32,13 +32,16 @@ export default function Footer() {
             >
               About
             </button>
-            <Link
-              href="/privacy-policy"
-              className="text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 
-                       dark:hover:text-blue-300 transition-colors"
-            >
-              Privacy Policy
-            </Link>
+            {(!isInPrivacyPolicy) && (
+                          <Link
+                          href="/privacy-policy"
+                          className="text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 
+                                   dark:hover:text-blue-300 transition-colors"
+                        >
+                          Privacy Policy
+                        </Link>
+            )}
+
           </div>
           <span className="text-xs text-gray-400 dark:text-gray-500">
             v{packageInfo.version}
