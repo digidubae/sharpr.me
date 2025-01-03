@@ -32,7 +32,6 @@ export default function LayoutClient({
 }) {
   const pathname = usePathname();
   const isLandingPage = pathname === '/';
-  const isAdminPage = pathname.startsWith('/admin');
 
   const content = (
     <>
@@ -45,7 +44,7 @@ export default function LayoutClient({
 
   const wrappedContent = (
     <SessionProvider>
-      {isLandingPage || isAdminPage ? (
+      {isLandingPage ? (
         <>
           <div className="fixed top-4 right-4 z-50">
             <AuthButton />

@@ -1,14 +1,14 @@
-import './globals.css';
-import { Inter } from 'next/font/google';
-import { SessionProvider } from '@/components/SessionProvider';
-import { DialogProvider } from '@/context/DialogContext';
-import Footer from '@/components/Footer';
+import "./globals.css";
+import { Inter } from "next/font/google";
+import { SessionProvider } from "@/components/SessionProvider";
+import { DialogProvider } from "@/context/DialogContext";
+import Footer from "@/components/Footer";
 
-const inter = Inter({ subsets: ['latin'] });
+const font = Inter({ subsets: ["latin"]});
 
 export const metadata = {
-  title: 'Sharpr.me',
-  description: 'A simple, fast, and beautiful way to organize your thoughts.',
+  title: "Sharpr.me",
+  description: "Stay sharp with information at your fingertips.",
 };
 
 export default function RootLayout({
@@ -18,11 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={font.className}>
         <SessionProvider>
-          <DialogProvider>
-            {children}
-          </DialogProvider>
+          <DialogProvider>{children}</DialogProvider>
           <Footer />
         </SessionProvider>
       </body>
