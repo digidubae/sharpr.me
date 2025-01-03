@@ -19,17 +19,17 @@ export default function PrivacyPolicyPage() {
 
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Data Storage</h2>
-              <p>Your spaces are stored in your Google Drive account. We only access the specific folder created for Sharpr.me and do not access other files in your Drive.</p>
+              <p>Your spaces are stored in your Google Drive account. We only access the specific folder created for Sharpr.me and do can NOT access other files in your Drive.</p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Data Security</h2>
-              <p>The app is served over https and uses Google Sign in to protect your data.  This makes the app as secure as your Google account.</p>
+              <p>The app is served over https and uses Google Sign in to protect your data.</p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-4">When you stop using the app</h2>
-              <p>By just stopping using the app, we don't have any trace or data about you and your data is already in your Google Drive.</p>
+              <p>When you stop using the app, we don't have any trace or data about you and your data is already in your Google Drive.</p>
             </section>
 
             <section className="mb-8">
