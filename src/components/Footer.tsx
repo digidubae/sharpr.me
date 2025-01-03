@@ -32,6 +32,13 @@ export default function Footer() {
             >
               About
             </button>
+            <Link
+              href="/privacy-policy"
+              className="text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 
+                       dark:hover:text-blue-300 transition-colors"
+            >
+              Privacy Policy
+            </Link>
           </div>
           <span className="text-xs text-gray-400 dark:text-gray-500">
             v{packageInfo.version}

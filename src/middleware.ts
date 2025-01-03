@@ -7,6 +7,7 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/api/auth') || 
       request.nextUrl.pathname === '/favicon.ico' ||
       request.nextUrl.pathname === '/' ||
+      request.nextUrl.pathname === '/privacy-policy' ||
       request.nextUrl.pathname.startsWith('/example/')) {
     return NextResponse.next();
   }
