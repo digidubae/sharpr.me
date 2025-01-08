@@ -7,8 +7,9 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { LibrarySpace } from '@/types';
 import SpaceCard from './SpaceCard';
-import { fetchWithAuth } from '@/utils/api';
 import { useSubjects } from '@/context/SubjectContext';
+import { useSpaces } from '@/hooks/useSpaces';
+import { fetchWithAuth } from '@/utils/api';
 
 interface SwitchSpaceDialogProps {
   isOpen: boolean;
@@ -17,15 +18,13 @@ interface SwitchSpaceDialogProps {
 
 export default function SwitchSpaceDialog({ isOpen, onClose }: SwitchSpaceDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
-  const hasLoadedRef = useRef(false);
   const { setIsDialogOpen } = useDialog();
   const { id: currentSpaceId } = useParams();
   const router = useRouter();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const { data: session } = useSession();
-  const [librarySpaces, setLibrarySpaces] = useState<LibrarySpace[]>([]);
   const { isSyncing } = useSubjects();
-  const [isLoading, setIsLoading] = useState(false);
+  const { spaces: librarySpaces, isLoading, invalidateSpaces } = useSpaces();
 
   const handleSpaceSwitch = useCallback(async (spaceId: string) => {
     router.push(`/s/${spaceId}`);
@@ -36,70 +35,22 @@ export default function SwitchSpaceDialog({ isOpen, onClose }: SwitchSpaceDialog
     setIsDialogOpen(isOpen);
   }, [isOpen, setIsDialogOpen]);
 
-  // Fetch library spaces when dialog opens and user is signed in
-  useEffect(() => {
-    if (isOpen && session?.user && !hasLoadedRef.current) {
-      setIsLoading(true);
-      hasLoadedRef.current = true;
-      fetchWithAuth('/api/library')
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            setLibrarySpaces(data);
-          }
-        })
-        .catch(console.error)
-        .finally(() => setIsLoading(false));
-    } else if (!session) {
-      setLibrarySpaces([]);
-      setIsLoading(false);
-      hasLoadedRef.current = false;
-    }
-  }, [isOpen, session]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen) return;
-
-      e.stopPropagation();
-
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          setSelectedIndex(prev => {
-            if (prev === null) return 0;
-            return Math.min(prev + 1, librarySpaces.length - 1);
-          });
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          setSelectedIndex(prev => {
-            if (prev === null) return null;
-            return Math.max(prev - 1, 0);
-          });
-          break;
-        case 'Enter':
-          e.preventDefault();
-          if (selectedIndex !== null && !isSyncing) {
-            handleSpaceSwitch(librarySpaces[selectedIndex].id);
-          }
-          break;
-        case 'Escape':
-          e.preventDefault();
-          onClose();
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, librarySpaces, selectedIndex, handleSpaceSwitch, isSyncing]);
-
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === dialogRef.current) {
       onClose();
     }
   };
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   if (!isOpen) return null;
 
@@ -151,7 +102,7 @@ export default function SwitchSpaceDialog({ isOpen, onClose }: SwitchSpaceDialog
                           });
                           
                           if (response.ok) {
-                            setLibrarySpaces(prev => prev.filter(s => s.id !== id));
+                            await invalidateSpaces();
                           }
                         } catch (error) {
                           console.error('Error removing from library:', error);
@@ -162,22 +113,17 @@ export default function SwitchSpaceDialog({ isOpen, onClose }: SwitchSpaceDialog
                         e.preventDefault();
                         e.stopPropagation();
                         try {
-                          const updatedSpaces = librarySpaces.map(s => 
-                            s.id === id ? { ...s, isPinned: !s.isPinned } : s
-                          );
-                          setLibrarySpaces(updatedSpaces);
-                          
                           await fetchWithAuth('/api/library/pin', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ 
                               spaceId: id, 
-                              isPinned: updatedSpaces.find(s => s.id === id)?.isPinned 
+                              isPinned: !librarySpaces.find(s => s.id === id)?.isPinned 
                             })
                           });
+                          await invalidateSpaces();
                         } catch (error) {
                           console.error('Error toggling pin status:', error);
-                          setLibrarySpaces(librarySpaces); // Revert on error
                         }
                       }}
                       index={index}
