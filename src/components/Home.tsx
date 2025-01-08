@@ -224,9 +224,16 @@ export default function Home() {
                 return; // Skip showing password prompt if successful
               }
             } catch (error) {
-              // If decryption fails with stored password, remove it
-              sessionStorage.removeItem(`space-${id}-password`);
-              console.error('Stored password is invalid:', error);
+              // Only remove the stored password if it's an actual decryption error
+              if (error instanceof Error && 
+                  (error.message === 'Decryption failed - Invalid password or corrupted data' ||
+                   error.message === 'Malformed UTF-8 data')) {
+                sessionStorage.removeItem(`space-${id}-password`);
+                console.error('Stored password is invalid:', error);
+              } else {
+                // For other errors (network, etc.), keep the password
+                console.error('Error during decryption:', error);
+              }
             }
           }
           
@@ -294,7 +301,7 @@ export default function Home() {
         throw new Error('Invalid decrypted data structure');
       }
 
-      // Store the password temporarily for re-encryption during sync
+      // Store the password only after successful decryption and validation
       sessionStorage.setItem(`space-${id}-password`, password);
 
       // Batch all state updates together
@@ -312,7 +319,9 @@ export default function Home() {
       updateStates();
     } catch (error) {
       console.error('Error decrypting space:', error);
-      if (error instanceof Error && error.message === 'Malformed UTF-8 data') {
+      if (error instanceof Error && 
+          (error.message === 'Decryption failed - Invalid password or corrupted data' ||
+           error.message === 'Malformed UTF-8 data')) {
         setPasswordError('Incorrect password. Please try again.');
         toast.error('Incorrect password');
       } else {
