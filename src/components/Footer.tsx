@@ -43,14 +43,14 @@ export default function Footer() {
               Privacy Policy
             </Link>
           )}
-           {status === 'authenticated' && !isInSettings && (
+          {/* {status === 'authenticated' && !isInSettings && (
             <Link
               href="/settings"
               className="text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
             >
               Settings
             </Link>
-          )} 
+          )} */}
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-400 dark:text-gray-500">

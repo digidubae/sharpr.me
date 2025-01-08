@@ -15,7 +15,6 @@ export default function HomePage() {
   const { spaces: librarySpaces, isLoading: spacesLoading, invalidateSpaces } = useSpaces();
   const hasLoadedRef = useRef(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -142,14 +141,7 @@ export default function HomePage() {
                             index={index}
                             onClick={(id) => window.location.href = `/s/${id}`}
                             section="library"
-                            showActions={true}
-                            isSelected={selectedIndex === index}
-                            onSelect={setSelectedIndex}
-                            onPin={(id, e) => {
-                              e.stopPropagation();
-                              // TODO: Implement pin logic
-                              console.log('Pin toggled for space:', id);
-                            }}
+                            showActions={false}
                           />
                         ))}
                       {librarySpaces.length === 0 && (
