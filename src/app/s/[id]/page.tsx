@@ -60,6 +60,7 @@ export default async function SpacePage({ params, searchParams }: PageProps) {
 
 async function SpaceContent({ spaceId }: { spaceId: string }) {
   const storage = await getStorageProvider();
+  console.log('SpaceContent called...');
   const spaceData = await storage.getSpace(spaceId);
 
   if (!spaceData) {
@@ -79,6 +80,26 @@ async function SpaceContent({ spaceId }: { spaceId: string }) {
     );
   }
 
+  // For encrypted spaces, pass empty subjects/categories and the encrypted data
+  if (spaceData.isLocked && spaceData.encryptedData) {
+    return (
+      <SubjectProvider 
+        initialData={{
+          id: spaceId,
+          title: spaceData.title,
+          subjects: [],
+          categories: [],
+          isLocked: true,
+          encryptedData: spaceData.encryptedData,
+          rawData: spaceData // Pass the entire raw data to avoid another fetch
+        }}
+      >
+        <Home />
+      </SubjectProvider>
+    );
+  }
+
+  // For unencrypted spaces, pass the data directly
   return (
     <SubjectProvider initialData={spaceData}>
       <Home />

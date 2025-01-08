@@ -38,6 +38,7 @@ export interface SubjectContextType {
   setSyncState: (state: 'idle' | 'syncing' | 'error') => void;
   isLocked: boolean;
   setIsLocked: (isLocked: boolean) => void;
+  rawData?: any;
 }
 
 interface SubjectProviderProps {
@@ -48,6 +49,10 @@ interface SubjectProviderProps {
     subjects: Subject[];
     categories: Category[];
     isExample?: boolean;
+    needsDecryption?: boolean;
+    encryptedData?: string;
+    isLocked?: boolean;
+    rawData?: any;
   };
 }
 
@@ -65,9 +70,32 @@ export function SubjectProvider({ children, initialData }: SubjectProviderProps)
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncState, setSyncState] = useState<'idle' | 'syncing' | 'error'>('idle');
   const [isInLibrary, setIsInLibrary] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
+  const [isLocked, setIsLocked] = useState(initialData?.isLocked || false);
   const { data: session } = useSession();
   const isExample = initialData?.isExample;
+
+  // Check library status when component mounts
+  useEffect(() => {
+    const checkLibraryStatus = async () => {
+      if (!isExample && session?.user && id && !isLocked) {
+        try {
+          const response = await fetchWithAuth('/api/library');
+          if (response.ok) {
+            const library = await response.json();
+            setIsInLibrary(library.some((item: any) => item.id === id));
+          }
+        } catch (error) {
+          // Silently handle the error - library status is not critical
+          console.error('Error checking library status:', error);
+        }
+      }
+    };
+
+    // Only check library status after decryption is complete
+    if (!isLocked) {
+      checkLibraryStatus();
+    }
+  }, [session, id, isExample, isLocked]);
 
   useEffect(() => {
     if (id) {
@@ -76,25 +104,6 @@ export function SubjectProvider({ children, initialData }: SubjectProviderProps)
       setHideCompleted(saved ? JSON.parse(saved) : false);
     }
   }, [id]);
-
-  // Check library status when component mounts
-  useEffect(() => {
-    const checkLibraryStatus = async () => {
-      if (!isExample && session?.user && id) {
-        try {
-          const response = await fetchWithAuth('/api/library');
-          if (response.ok) {
-            const library = await response.json();
-            setIsInLibrary(library.some((item: any) => item.id === id));
-          }
-        } catch (error) {
-          console.error('Error checking library status:', error);
-        }
-      }
-    };
-
-    checkLibraryStatus();
-  }, [session, id, isExample]);
 
   const getAllTags = useCallback(() => {
     const allTags = new Set<string>();
@@ -241,7 +250,8 @@ export function SubjectProvider({ children, initialData }: SubjectProviderProps)
     syncState,
     setSyncState,
     isLocked,
-    setIsLocked
+    setIsLocked,
+    rawData: initialData?.rawData
   };
 
   return (

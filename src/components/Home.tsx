@@ -81,7 +81,8 @@ export default function Home() {
     setIsSyncing,
     setSyncState,
     setIsLocked,
-    isLocked
+    isLocked,
+    rawData
   } = useSubjects();
   const [isLoading, setIsLoading] = useState(true);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -89,7 +90,6 @@ export default function Home() {
   const [showSwitchSpaceDialog, setShowSwitchSpaceDialog] = useState(false);
   const [showRecoverDialog, setShowRecoverDialog] = useState(false);
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-  const [isSpaceEncrypted, setIsSpaceEncrypted] = useState(false);
   const { syncState, startSync, endSync } = useSyncStatus();
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -103,92 +103,6 @@ export default function Home() {
     }
   }, [title, isLoading]);
 
-  useEffect(() => {
-    async function fetchSpaces() {
-      // Skip fetching spaces for example spaces
-      if (isExample) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetchWithAuth('/api/library');
-        
-        if (!response.ok) {
-          const data = await response.json();
-          
-          // Handle insufficient permissions
-          if (response.status === 403 && data.code === 'INSUFFICIENT_PERMISSIONS') {
-            router.push('/permissions');
-            return;
-          }
-          
-          throw new Error(data.error || 'Failed to fetch spaces');
-        }
-
-        const data = await response.json();
-        setSpaces(data);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'Failed to fetch spaces');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchSpaces();
-  }, [router]);
-
-  // Update local syncing state when syncState changes
-  useEffect(() => {
-    setIsSyncing(syncState === 'syncing');
-  }, [syncState]);
-
-  // Add beforeunload handler for sync state
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (syncState === 'syncing') {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [syncState]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      // Check if Cmd (Mac) or Ctrl (Windows/Linux) + H is pressed
-      if ((event.metaKey || event.ctrlKey) && event.key === 'h') {
-        event.preventDefault(); // Prevent browser's default behavior
-        
-        // Check if syncing before navigation
-        if (syncState === 'syncing') {
-          const confirmNavigation = window.confirm('Changes are still being saved. Are you sure you want to leave?');
-          if (!confirmNavigation) {
-            return;
-          }
-        }
-        
-        window.location.href = '/';
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [syncState]);
-
   // Check if space is encrypted on load
   useEffect(() => {
     const checkEncryption = async () => {
@@ -197,59 +111,63 @@ export default function Home() {
         return;
       }
 
-      try {
-        const response = await fetchWithAuth(`/api/subjects?id=${id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch space data');
-        }
-
-        const data = await response.json();
-        if (data.isLocked && data.encryptedData) {
-          setIsSpaceEncrypted(true);
-          setIsLocked(true); // Set the locked state in context
-          
-          // Try to use stored password first
-          const storedPassword = sessionStorage.getItem(`space-${id}-password`);
-          if (storedPassword) {
-            try {
-              // Attempt to decrypt with stored password
-              const decryptedData = await decryptData(data.encryptedData, storedPassword);
-              
-              // Validate the decrypted data
-              if (decryptedData && decryptedData.subjects && decryptedData.categories) {
-                // Update the UI with decrypted data
-                setSubjects(decryptedData.subjects);
-                setCategories(decryptedData.categories);
-                setIsLoading(false);
-                return; // Skip showing password prompt if successful
-              }
-            } catch (error) {
-              // Only remove the stored password if it's an actual decryption error
-              if (error instanceof Error && 
-                  (error.message === 'Decryption failed - Invalid password or corrupted data' ||
-                   error.message === 'Malformed UTF-8 data')) {
-                sessionStorage.removeItem(`space-${id}-password`);
-                console.error('Stored password is invalid:', error);
-              } else {
-                // For other errors (network, etc.), keep the password
-                console.error('Error during decryption:', error);
-              }
+      // Try to use stored password first if space is locked
+      if (isLocked) {
+        const storedPassword = sessionStorage.getItem(`space-${id}-password`);
+        if (storedPassword) {
+          try {
+            // Keep loading state true until decryption is complete
+            setIsLoading(true);
+            
+            // Get the encrypted data from the context instead of fetching
+            const data = rawData;
+            if (!data?.encryptedData) {
+              throw new Error('No encrypted data found');
             }
+
+            // Attempt to decrypt with stored password
+            const decryptedData = await decryptData(data.encryptedData, storedPassword);
+            
+            // Validate the decrypted data
+            if (decryptedData && decryptedData.subjects && decryptedData.categories) {
+              // Update all states at once to prevent unnecessary syncs
+              setSubjects(decryptedData.subjects);
+              setCategories(decryptedData.categories);
+              setIsLoading(false);
+              return; // Skip showing password prompt if successful
+            } else {
+              throw new Error('Invalid decrypted data structure');
+            }
+          } catch (error) {
+            // Only remove the stored password if it's an actual decryption error
+            if (error instanceof Error && 
+                (error.message === 'Decryption failed - Invalid password or corrupted data' ||
+                 error.message === 'Malformed UTF-8 data')) {
+              sessionStorage.removeItem(`space-${id}-password`);
+              console.error('Stored password is invalid:', error);
+            } else {
+              // For other errors (network, etc.), keep the password
+              console.error('Error during decryption:', error);
+            }
+            // Show password prompt when decryption fails
+            setShowPasswordPrompt(true);
+            setIsLoading(false);
+            return;
           }
-          
-          setShowPasswordPrompt(true);
-          return; // Keep loading true while showing password prompt
         }
+        
+        // Show password prompt and keep loading state false
+        setShowPasswordPrompt(true);
         setIsLoading(false);
-      } catch (error) {
-        console.error('Error checking encryption:', error);
-        toast.error('Failed to load space');
-        setIsLoading(false);
+        return;
       }
+
+      // For unencrypted spaces, we already have the data from SubjectProvider
+      setIsLoading(false);
     };
 
     checkEncryption();
-  }, [id]);
+  }, [id, isLocked]);
 
   // Load example data if needed
   useEffect(() => {
@@ -283,13 +201,9 @@ export default function Home() {
 
     setIsLoading(true); // Set loading state before decryption starts
     try {
-      const response = await fetchWithAuth(`/api/subjects?id=${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch space data');
-      }
-
-      const data = await response.json();
-      if (!data.encryptedData) {
+      // Get the encrypted data from the context instead of fetching
+      const data = rawData;
+      if (!data?.encryptedData) {
         throw new Error('No encrypted data found');
       }
 
@@ -304,26 +218,19 @@ export default function Home() {
       // Store the password only after successful decryption and validation
       sessionStorage.setItem(`space-${id}-password`, password);
 
-      // Batch all state updates together
-      await Promise.resolve(); // Ensure we're in a fresh tick
-      
-      // Update all states at once
-      const updateStates = () => {
-        setShowPasswordPrompt(false);
-        setPasswordError(null);
-        setSubjects(decryptedData.subjects);
-        setCategories(decryptedData.categories);
-        setIsLoading(false);
-      };
-      
-      updateStates();
+      // Update all states at once to prevent unnecessary syncs
+      setShowPasswordPrompt(false);
+      setPasswordError(null);
+      setSubjects(decryptedData.subjects);
+      setCategories(decryptedData.categories);
+      setIsLoading(false);
     } catch (error) {
       console.error('Error decrypting space:', error);
       if (error instanceof Error && 
           (error.message === 'Decryption failed - Invalid password or corrupted data' ||
            error.message === 'Malformed UTF-8 data')) {
         setPasswordError('Incorrect password. Please try again.');
-        toast.error('Incorrect password');
+        // toast.error('Incorrect password');
       } else {
         setPasswordError('Failed to decrypt space. Please try again.');
         // toast.error('Failed to decrypt space');
@@ -353,13 +260,6 @@ export default function Home() {
       }
     }
   };
-
-  useEffect(() => {
-    if (isEditingTitle && titleInputRef.current) {
-      titleInputRef.current.focus();
-      titleInputRef.current.select();
-    }
-  }, [isEditingTitle]);
 
   const handleExport = () => {
     const exportData = {
@@ -565,7 +465,6 @@ export default function Home() {
         toast.success('Snapshot recovered successfully');
 
         // Set encrypted state and show password prompt
-        setIsSpaceEncrypted(true);
         setIsLocked(true);
         setShowPasswordPrompt(true);
 
@@ -630,8 +529,6 @@ export default function Home() {
       toast.error(error instanceof Error ? error.message : 'Failed to recover snapshot');
     }
   };
-
-  const handleLibraryToggle = undefined;
 
   const handleEncrypt = async (password: string) => {
     if (isExample) return;
@@ -729,7 +626,6 @@ export default function Home() {
       }
 
       // Only after successful save, update the UI state
-      setIsSpaceEncrypted(true);
       setIsLocked(true); // Set the locked state in context
       
       // Update the loading toast to success
@@ -822,7 +718,6 @@ export default function Home() {
       }
 
       // Update the UI state
-      setIsSpaceEncrypted(false);
       setIsLocked(false);
 
       // Explicitly clean up stored password only when turning off encryption
@@ -873,6 +768,19 @@ export default function Home() {
             mode="decrypt"
             error={passwordError}
           />
+        </div>
+        <LoadTime />
+      </div>
+    );
+  }
+
+  // Don't render the main content until we have actual data
+  const hasData = subjects.length > 0 || categories.length > 0 || !isLocked;
+  if (!hasData && !isExample) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-grow">
+          <Shimmer message="Loading space..." />
         </div>
         <LoadTime />
       </div>

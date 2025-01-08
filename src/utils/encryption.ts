@@ -16,6 +16,9 @@ function deriveKey(password: string, salt: string): CryptoJS.lib.WordArray {
   });
 }
 
+// Add a variable to track the current decryption promise
+let currentDecryptionPromise: Promise<any> | null = null;
+
 export async function encryptData(data: any, password: string): Promise<string> {
   try {
     // Generate random salt and IV
@@ -52,34 +55,52 @@ export async function encryptData(data: any, password: string): Promise<string> 
 }
 
 export async function decryptData(encryptedString: string, password: string): Promise<any> {
+  // If there's already a decryption in progress, return that promise
+  if (currentDecryptionPromise) {
+    return currentDecryptionPromise;
+  }
+
   try {
-    // Parse the encrypted payload
-    const payload: EncryptedPayload = JSON.parse(encryptedString);
-    
-    // Verify version
-    if (payload.version !== 1) {
-      throw new Error('Unsupported encryption version');
-    }
-    
-    // Derive the same key using the stored salt
-    const key = deriveKey(password, payload.salt);
-    
-    // Decrypt using AES-CBC with the stored IV
-    const decrypted = CryptoJS.AES.decrypt(payload.ciphertext, key, {
-      iv: CryptoJS.enc.Hex.parse(payload.iv),
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
-    });
-    
-    // Convert to string and parse JSON
-    const jsonString = decrypted.toString(CryptoJS.enc.Utf8);
-    if (!jsonString) {
-      throw new Error('Invalid password or corrupted data');
-    }
-    
-    return JSON.parse(jsonString);
-  } catch (error) {
-    console.error('Decryption error:', error);
-    throw new Error('Decryption failed - Invalid password or corrupted data');
+    // Create a new decryption promise
+    currentDecryptionPromise = (async () => {
+      try {
+        console.log('decryptData called...');
+        // Parse the encrypted payload
+        const payload: EncryptedPayload = JSON.parse(encryptedString);
+        
+        // Verify version
+        if (payload.version !== 1) {
+          throw new Error('Unsupported encryption version');
+        }
+        
+        // Derive the same key using the stored salt
+        const key = deriveKey(password, payload.salt);
+        
+        // Decrypt using AES-CBC with the stored IV
+        const decrypted = CryptoJS.AES.decrypt(payload.ciphertext, key, {
+          iv: CryptoJS.enc.Hex.parse(payload.iv),
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7
+        });
+        
+        // Convert to string and parse JSON
+        const jsonString = decrypted.toString(CryptoJS.enc.Utf8);
+        if (!jsonString) {
+          throw new Error('Invalid password or corrupted data');
+        }
+
+        // await new Promise(resolve => setTimeout(resolve, 5000));
+        
+        return JSON.parse(jsonString);
+      } catch (error) {
+        console.error('Decryption error:', error);
+        throw new Error('Decryption failed - Invalid password or corrupted data');
+      }
+    })();
+
+    return await currentDecryptionPromise;
+  } finally {
+    // Clear the current promise after it completes (whether success or failure)
+    currentDecryptionPromise = null;
   }
 } 
