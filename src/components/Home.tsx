@@ -290,25 +290,30 @@ export default function Home() {
       // Store the password temporarily for re-encryption during sync
       sessionStorage.setItem(`space-${id}-password`, password);
 
-      // Update the UI with decrypted data
-      setSubjects(decryptedData.subjects);
-      setCategories(decryptedData.categories);
-      setShowPasswordPrompt(false);
-      setPasswordError(null);
-
-      // toast.success('Space decrypted successfully');
+      // Batch all state updates together
+      await Promise.resolve(); // Ensure we're in a fresh tick
+      
+      // Update all states at once
+      const updateStates = () => {
+        setShowPasswordPrompt(false);
+        setPasswordError(null);
+        setSubjects(decryptedData.subjects);
+        setCategories(decryptedData.categories);
+        setIsLoading(false);
+      };
+      
+      updateStates();
     } catch (error) {
       console.error('Error decrypting space:', error);
-      setShowPasswordPrompt(true); // Keep the dialog open
       if (error instanceof Error && error.message === 'Malformed UTF-8 data') {
         setPasswordError('Incorrect password. Please try again.');
         toast.error('Incorrect password');
       } else {
         setPasswordError('Failed to decrypt space. Please try again.');
-        toast.error('Failed to decrypt space');
+        // toast.error('Failed to decrypt space');
       }
-    } finally {
-      setIsLoading(false); // Only set loading to false after everything is complete
+      setIsLoading(false);
+      setShowPasswordPrompt(true); // Keep the dialog open
     }
   };
 
@@ -837,7 +842,7 @@ export default function Home() {
     );
   }
 
-  if (showPasswordPrompt) {
+  if (showPasswordPrompt && !isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <div className="flex-grow flex items-center justify-center">
