@@ -22,6 +22,7 @@ import EncryptionDialog from './EncryptionDialog';
 import { encryptData, decryptData } from '@/utils/encryption';
 import { useSyncStatus } from '@/hooks/useSyncStatus';
 import { getStorageProvider } from '@/utils/storage';
+import { useSpaces } from '@/hooks/useSpaces';
 
 interface Space {
   id: string;
@@ -93,6 +94,7 @@ export default function Home() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { invalidateSpaces } = useSpaces();
 
   useEffect(() => {
     async function fetchSpaces() {
@@ -476,6 +478,10 @@ export default function Home() {
         throw new Error(errorData.error || errorData.details || 'Failed to delete space');
       }
 
+      // Wait for the cache invalidation to complete before navigating
+      await invalidateSpaces();
+      
+      // Only navigate after successful deletion and cache invalidation
       router.push('/');
     } catch (error) {
       console.error('Delete space error:', error);

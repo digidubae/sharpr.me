@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSpaces } from '@/hooks/useSpaces';
 
 interface DeleteSpaceDialogProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface DeleteSpaceDialogProps {
 }
 
 export default function DeleteSpaceDialog({ isOpen, onClose, onConfirm, spaceCount = 1 }: DeleteSpaceDialogProps) {
+  const { invalidateSpaces } = useSpaces();
   const [isDeleting, setIsDeleting] = useState(false);
 
   if (!isOpen) return null;
@@ -17,7 +19,12 @@ export default function DeleteSpaceDialog({ isOpen, onClose, onConfirm, spaceCou
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
+      await invalidateSpaces();
       await onConfirm();
+      onClose();
+    } catch (error) {
+      console.error('Error deleting space:', error);
+      // Handle error if needed
     } finally {
       setIsDeleting(false);
     }

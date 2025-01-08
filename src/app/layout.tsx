@@ -4,6 +4,8 @@ import { SessionProvider } from "@/components/SessionProvider";
 import { DialogProvider } from "@/context/DialogContext";
 import { ThemeProvider } from "next-themes";
 import Footer from "@/components/Footer";
+import { Providers } from "@/components/Providers";
+import { ToastProvider } from "@/components/ToastProvider";
 
 const font = Inter({ subsets: ["latin"]});
 
@@ -22,7 +24,13 @@ export default function RootLayout({
       <body className={font.className}>
         <ThemeProvider attribute="class" enableSystem defaultTheme="system">
           <SessionProvider>
-            <DialogProvider>{children}</DialogProvider>
+            <DialogProvider>
+              <Providers>
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
+              </Providers>
+            </DialogProvider>
             <Footer />
           </SessionProvider>
         </ThemeProvider>

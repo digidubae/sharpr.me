@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useSpaces } from '@/hooks/useSpaces';
 
 export default function CreateSpacePage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function CreateSpacePage() {
   const [existingSpaceId, setExistingSpaceId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const { invalidateSpaces } = useSpaces();
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -78,6 +80,9 @@ export default function CreateSpacePage() {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create space');
       }
+
+      // Invalidate spaces cache after successful creation
+      await invalidateSpaces();
       
       // Success - redirect to the new space
       router.push(`/s/${data.spaceId}`);

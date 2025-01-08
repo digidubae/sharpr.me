@@ -8,12 +8,13 @@ import SpaceCard from '@/components/SpaceCard';
 import { LibrarySpace } from '@/types';
 import { fetchWithAuth } from '@/utils/api';
 import Shimmer from '@/components/Shimmer';
+import { useSpaces } from '@/hooks/useSpaces';
 
 export default function HomePage() {
-  const { data: session, status } = useSession();
-  const [librarySpaces, setLibrarySpaces] = useState<LibrarySpace[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { data: session, status: authStatus } = useSession();
+  const { spaces: librarySpaces, isLoading: spacesLoading, invalidateSpaces } = useSpaces();
   const hasLoadedRef = useRef(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -29,32 +30,21 @@ export default function HomePage() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [session]);
 
-  useEffect(() => {
-    if (session?.user && !hasLoadedRef.current) {
-      setIsLoading(true);
-      hasLoadedRef.current = true;
-      fetchWithAuth('/api/library')
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            setLibrarySpaces(data);
-          }
-        })
-        .catch(console.error)
-        .finally(() => setIsLoading(false));
-    } else if (!session) {
-      setLibrarySpaces([]);
-      setIsLoading(false);
-      hasLoadedRef.current = false;
-    }
-  }, [session]);
-
-  if (status === "loading") {
+  if (authStatus === "loading") {
     return <Shimmer message="Loading..." />;
   }
 
   const handleSignIn = () => {
     signIn('google', { redirect: false });
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await invalidateSpaces();
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   return (
@@ -95,7 +85,29 @@ export default function HomePage() {
                 </p>
 
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Your Spaces</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Your Spaces</h2>
+                    <button
+                      onClick={handleRefresh}
+                      disabled={isRefreshing}
+                      className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      title="Refresh spaces"
+                    >
+                      <svg
+                        className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                   <Link
                     href="/create"
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
@@ -105,7 +117,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="space-y-3">
-                  {isLoading ? (
+                  {(spacesLoading || isRefreshing) ? (
                     <>
                       {[1, 2, 3].map((i) => (
                         <div key={i} className="h-16 w-full rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse" />
