@@ -1,5 +1,9 @@
 import Link from 'next/link';
 
+export const metadata = {
+  title: 'Privacy Policy - Sharpr.me',
+};
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-16">
