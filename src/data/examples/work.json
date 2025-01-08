@@ -1,0 +1,46 @@
+{
+    "title": "Work Projects 💼",
+    "subjects": [
+      {
+        "id": 1732609685725.143,
+        "content": "<h3>🔧 Server Room B Upgrade</h3><div style=\"background-color: #fef2f2; padding: 12px; border-radius: 8px; dark:bg-red-900;\"><p><strong>Budget:</strong> $50K</p><ul><li>📋 Get vendor quotes for network equipment</li><li>👤 John to coordinate with IT Supply</li><li>📅 Schedule technical review</li></ul></div><p><em style=\"color: #ef4444;\">Priority: High</em> 🚨</p>",
+        "tags": [
+          "infrastructure",
+          "budget",
+          "priority"
+        ],
+        "createdAt": "2024-11-25T08:07:29.609Z",
+        "completed": false,
+        "images": [],
+        "order": 0
+      },
+      {
+        "id": 1732609685725.0798,
+        "content": "<h3>🏢 Datacenter Review</h3><table style=\"border-collapse: collapse; width: 100%;\" border=\"1\"><tbody><tr><td style=\"padding: 8px;\"><strong>Component</strong></td><td style=\"padding: 8px;\"><strong>Status</strong></td></tr><tr><td style=\"padding: 8px;\">Primary Connection</td><td style=\"padding: 8px;\">✅ Verified</td></tr><tr><td style=\"padding: 8px;\">Backup Systems</td><td style=\"padding: 8px;\">⏳ In Review</td></tr><tr><td style=\"padding: 8px;\">Documentation</td><td style=\"padding: 8px;\">📝 Updating</td></tr></tbody></table>",
+        "tags": [
+          "datacenter",
+          "connectivity",
+          "review"
+        ],
+        "createdAt": "2024-11-25T08:05:54.352Z",
+        "completed": false,
+        "images": [],
+        "order": 1000
+      },
+      {
+        "id": 1732609685725.2966,
+        "content": "<h3>📊 Project Proposals</h3><div style=\"background-color: #f0f9ff; padding: 12px; border-radius: 8px; dark:bg-blue-900;\"><p><strong>Phase 2 & 3 Deliverables:</strong></p><ul><li>💰 Budget forecasts</li><li>📈 Resource allocation</li><li>⏱️ Timeline estimates</li><li>🎯 Success metrics</li></ul></div><p style=\"color: #3b82f6;\">Submit to management by EOW</p>",
+        "tags": [
+          "datacenter",
+          "planning",
+          "proposals"
+        ],
+        "createdAt": "2024-11-25T05:53:28.531Z",
+        "completed": false,
+        "images": [],
+        "order": 2000
+      }
+    ],
+    "hideCompleted": false,
+    "sortOption": "manual"
+  }
