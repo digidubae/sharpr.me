@@ -296,7 +296,7 @@ export default function Home() {
       setShowPasswordPrompt(false);
       setPasswordError(null);
 
-      toast.success('Space decrypted successfully');
+      // toast.success('Space decrypted successfully');
     } catch (error) {
       console.error('Error decrypting space:', error);
       setShowPasswordPrompt(true); // Keep the dialog open
