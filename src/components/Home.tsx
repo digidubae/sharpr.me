@@ -96,6 +96,13 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const { invalidateSpaces } = useSpaces();
 
+  // Update document title when space title changes
+  useEffect(() => {
+    if (!isLoading && title) {
+      document.title = `${title} - Sharpr.me`;
+    }
+  }, [title, isLoading]);
+
   useEffect(() => {
     async function fetchSpaces() {
       // Skip fetching spaces for example spaces
