@@ -487,7 +487,9 @@ export default function SearchBar() {
               </h2>
             )}
             <div className="flex flex-wrap gap-2">
-              {category.tags.map((tag, tagIndex: number) => (
+              {category.tags
+                .filter(tag => getTagCount(tag) > 0)
+                .map((tag, tagIndex: number) => (
                 <motion.button
                   key={generateUniqueKey(category, categoryIndex, tag, tagIndex)}
                   whileHover={{ scale: 1.05 }}
