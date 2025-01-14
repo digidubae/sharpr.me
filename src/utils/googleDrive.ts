@@ -10,28 +10,70 @@ export class GoogleDriveService {
     'https://www.googleapis.com/auth/drive.file'
   ];
 
+  private static instance: GoogleDriveService | null = null;
+  private static driveInstance: drive_v3.Drive | null = null;
+  private static connectionTimeout: NodeJS.Timeout | null = null;
+  private static CLEANUP_TIMEOUT = 60000; // 60 seconds
+
   private constructor(private auth: any) {}
 
   static async initialize(accessToken: string) {
     try {
+      // Reuse existing instance if the access token matches
+      if (this.instance && this.instance.auth.credentials.access_token === accessToken) {
+        return this.instance;
+      }
+
+      // Clean up existing instance if it exists
+      await this.cleanup();
+
       const auth = new google.auth.OAuth2();
       auth.setCredentials({ 
         access_token: accessToken,
         scope: GoogleDriveService.SCOPES.join(' ')
       });
-      return new GoogleDriveService(auth);
+
+      this.instance = new GoogleDriveService(auth);
+      this.driveInstance = google.drive({ version: 'v3', auth });
+
+      // Set up cleanup timeout
+      if (this.connectionTimeout) {
+        clearTimeout(this.connectionTimeout);
+      }
+      this.connectionTimeout = setTimeout(() => this.cleanup(), this.CLEANUP_TIMEOUT);
+
+      return this.instance;
     } catch (error) {
       console.error('Error initializing GoogleDriveService:', error);
       throw error;
     }
   }
 
+  private static async cleanup() {
+    if (this.instance) {
+      // Clear the timeout if it exists
+      if (this.connectionTimeout) {
+        clearTimeout(this.connectionTimeout);
+        this.connectionTimeout = null;
+      }
+
+      // Clear the instances
+      this.instance = null;
+      this.driveInstance = null;
+    }
+  }
+
+  private getDrive(): drive_v3.Drive {
+    if (!GoogleDriveService.driveInstance) {
+      GoogleDriveService.driveInstance = google.drive({ version: 'v3', auth: this.auth });
+    }
+    return GoogleDriveService.driveInstance;
+  }
+
   private async findOrCreateFolder() {
-    const drive = google.drive({ version: 'v3', auth: this.auth });
+    const drive = this.getDrive();
     
     try {
-      // console.log('Searching for folder:', GoogleDriveService.FOLDER_NAME);
-      // Search for existing folder
       const response = await drive.files.list({
         q: `name='${GoogleDriveService.FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
         spaces: 'drive',
@@ -39,12 +81,10 @@ export class GoogleDriveService {
       });
 
       if (response.data.files && response.data.files.length > 0) {
-        // console.log('Found existing folder');
         return response.data.files[0].id!;
       }
 
       console.log('Creating new folder');
-      // Create new folder if it doesn't exist
       const folderMetadata: drive_v3.Schema$File = {
         name: GoogleDriveService.FOLDER_NAME,
         mimeType: 'application/vnd.google-apps.folder',
@@ -67,11 +107,10 @@ export class GoogleDriveService {
   }
 
   async listFiles(pattern: string): Promise<string[]> {
-    const drive = google.drive({ version: 'v3', auth: this.auth });
+    const drive = this.getDrive();
     const folderId = await this.findOrCreateFolder();
     
     try {
-      // Convert glob pattern to regex-like query
       const nameQuery = pattern
         .replace('*', '')
         .split('.')
@@ -96,12 +135,10 @@ export class GoogleDriveService {
   }
 
   async saveData(filename: string, data: any): Promise<string> {
-    // console.log(`Saving file: ${filename}`);
-    const drive = google.drive({ version: 'v3', auth: this.auth });
+    const drive = this.getDrive();
     const folderId = await this.findOrCreateFolder();
 
     try {
-      // Check if file already exists
       const existingFile = await drive.files.list({
         q: `name='${filename}' and '${folderId}' in parents and trashed=false`,
         spaces: 'drive',
@@ -114,11 +151,8 @@ export class GoogleDriveService {
       };
 
       if (existingFile.data.files && existingFile.data.files.length > 0) {
-        // Update existing file
-        // console.log(`Updating existing file: ${filename}`);
         const fileId = existingFile.data.files[0].id!;
         
-        // For updates, we only include the name in the metadata
         const updateMetadata: drive_v3.Schema$File = {
           name: filename
         };
@@ -130,14 +164,11 @@ export class GoogleDriveService {
           fields: 'id',
         });
         
-        // console.log(`File updated successfully: ${filename}`);
         return file.data.id!;
       } else {
-        // Create new file
-        // console.log(`Creating new file: ${filename}`);
         const createMetadata: drive_v3.Schema$File = {
           name: filename,
-          parents: [folderId], // Only include parents when creating
+          parents: [folderId],
         };
 
         const file = await drive.files.create({
@@ -145,7 +176,6 @@ export class GoogleDriveService {
           media,
           fields: 'id',
         });
-        // console.log(`File created successfully: ${filename}`);
         return file.data.id!;
       }
     } catch (error: unknown) {
@@ -158,8 +188,7 @@ export class GoogleDriveService {
   }
 
   async getData(filename: string): Promise<any> {
-    // console.log(`Getting file: ${filename}`);
-    const drive = google.drive({ version: 'v3', auth: this.auth });
+    const drive = this.getDrive();
     const folderId = await this.findOrCreateFolder();
 
     try {
@@ -179,7 +208,6 @@ export class GoogleDriveService {
         alt: 'media',
       });
 
-      // console.log(`File retrieved successfully: ${filename}`);
       return file.data;
     } catch (error: unknown) {
       console.error(`Error getting file ${filename}:`, error);
@@ -191,7 +219,7 @@ export class GoogleDriveService {
   }
 
   async deleteData(filename: string): Promise<void> {
-    const drive = google.drive({ version: 'v3', auth: this.auth });
+    const drive = this.getDrive();
     const folderId = await this.findOrCreateFolder();
 
     try {
