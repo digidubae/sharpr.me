@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import Footer from "@/components/Footer";
 import { Providers } from "@/components/Providers";
 import { ToastProvider } from "@/components/ToastProvider";
+import { Analytics } from "@vercel/analytics/react";
 
 const font = Inter({ subsets: ["latin"]});
 
@@ -34,6 +35,7 @@ export default function RootLayout({
             <Footer />
           </SessionProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
