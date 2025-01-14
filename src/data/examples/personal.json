@@ -3,7 +3,7 @@
   "subjects": [
     {
       "id": 1732609685725.001,
-      "content": "<h3>🏥 Annual Health Checkup</h3><ul><li>Call Dr. Smith's office (555-0123)</li><li>Request morning appointment</li><li>Get blood work requisition</li></ul><p><em>Priority: High</em> ⚡</p>",
+      "content": "<p style=\"text-align: center\">🏥 <b>Health & Wellness</b></p>\n<p><i>Annual checkup planning:</i></p>\n<ul>\n<li><b>Medical Appointments</b> 📋\n  <ul>\n    <li>Schedule with Dr. Smith</li>\n    <li>Blood work requisition</li>\n    <li>Morning slot preferred</li>\n  </ul>\n</li>\n<li>Health Records 📄\n  <ul>\n    <li>Update medical history</li>\n    <li>Insurance verification</li>\n  </ul>\n</li>\n</ul>",
       "tags": ["health", "appointments", "priority"],
       "createdAt": "2024-11-25T08:07:29.609Z",
       "completed": false,
@@ -12,7 +12,7 @@
     },
     {
       "id": 1732609685725.002,
-      "content": "<h3>🏃‍♂️ Weekend Hiking Plan</h3><table style=\"border-collapse: collapse; width: 100%;\" border=\"1\"><tbody><tr><td style=\"padding: 8px;\"><strong>Item</strong></td><td style=\"padding: 8px;\"><strong>Status</strong></td></tr><tr><td style=\"padding: 8px;\">Weather Check</td><td style=\"padding: 8px;\">✅ Done</td></tr><tr><td style=\"padding: 8px;\">Trail Map</td><td style=\"padding: 8px;\">✅ Downloaded</td></tr><tr><td style=\"padding: 8px;\">Gear Prep</td><td style=\"padding: 8px;\">⏳ In Progress</td></tr></tbody></table><p style=\"color: #22c55e;\">Trail selected: Pine Mountain Loop 🌲</p>",
+      "content": "<p style=\"text-align: center\">🏃‍♂️ <b>Outdoor Activities</b></p>\n<p><i>Weekend hiking preparation:</i></p>\n<ul>\n<li><b>Pre-hike Checklist</b> 🎯\n  <ul>\n    <li>Weather forecast check ✅</li>\n    <li>Trail map downloaded ✅</li>\n    <li>Gear preparation ⏳</li>\n  </ul>\n</li>\n<li>Trail Details 🌲\n  <ul>\n    <li>Pine Mountain Loop</li>\n    <li>Difficulty: Moderate</li>\n  </ul>\n</li>\n</ul>",
       "tags": ["outdoor", "exercise", "weekend"],
       "createdAt": "2024-11-25T08:05:54.352Z",
       "completed": false,
@@ -21,21 +21,48 @@
     },
     {
       "id": 1732609685725.004,
-      "content": "<h3>🏠 Garage Organization</h3><p><strong style=\"color: #3b82f6;\">Progress:</strong></p><ul><li>✅ Sort winter equipment</li><li>✅ Clear workbench area</li><li>✅ Install new shelving</li><li>✅ Label storage boxes</li></ul><p style=\"color: #22c55e;\">Donation box ready for drop-off! 📦</p>",
+      "content": "<p style=\"text-align: center\">🏠 <b>Home Organization</b></p>\n<p><i>Garage cleanup progress:</i></p>\n<ul>\n<li><b>Completed Tasks</b> ✅\n  <ul>\n    <li>Winter equipment sorted</li>\n    <li>Workbench cleared</li>\n    <li>New shelving installed</li>\n    <li>Storage boxes labeled</li>\n  </ul>\n</li>\n<li>Next Steps 📦\n  <ul>\n    <li>Drop off donations</li>\n    <li>Organize tools</li>\n  </ul>\n</li>\n</ul>",
       "tags": ["home", "organization", "declutter"],
       "createdAt": "2024-11-25T07:52:12.708Z",
+      "completed": true,
+      "images": [],
+      "order": 2000
+    },
+    {
+      "id": 1732609685725.005,
+      "content": "<p style=\"text-align: center\">💼 <b>Professional Growth</b></p>\n<p><i>Career development updates:</i></p>\n<ol>\n<li><b>Profile Updates</b> ✨\n  <ul>\n    <li>Resume refreshed</li>\n    <li>LinkedIn optimized</li>\n    <li>Portfolio updated</li>\n  </ul>\n</li>\n<li>Skill Development 📚\n  <ul>\n    <li>Online courses</li>\n    <li>Certification prep</li>\n  </ul>\n</li>\n</ol>",
+      "tags": ["career", "important", "professional"],
+      "createdAt": "2024-11-25T07:51:14.214Z",
       "completed": true,
       "images": [],
       "order": 3000
     },
     {
-      "id": 1732609685725.005,
-      "content": "<h3>💼 Career Development</h3><blockquote style=\"border-left: 4px solid #3b82f6; padding-left: 16px; margin: 16px 0;\"><p>Update professional profiles with recent achievements</p></blockquote><ul><li>✅ Update resume with new certifications</li><li>✅ Refresh LinkedIn summary</li><li>✅ Add recent project highlights</li><li>✅ Update profile photo</li></ul><p><em style=\"color: #22c55e;\">All updates completed! 🎯</em></p>",
-      "tags": ["career", "important", "professional"],
-      "createdAt": "2024-11-25T07:51:14.214Z",
-      "completed": true,
+      "id": 1732609685725.006,
+      "content": "<p style=\"text-align: center\">🎓 <b>Learning Goals</b></p>\n<p><i>Personal development plan:</i></p>\n<ul>\n<li><b>Language Learning</b> 🗣️\n  <ul>\n    <li>Daily practice sessions</li>\n    <li>Conversation partners</li>\n    <li>Language apps</li>\n  </ul>\n</li>\n<li>Technical Skills 💻\n  <ul>\n    <li>Programming courses</li>\n    <li>Project practice</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["education", "learning", "goals"],
+      "createdAt": "2024-11-25T07:50:14.214Z",
+      "completed": false,
       "images": [],
       "order": 4000
+    },
+    {
+      "id": 1732609685725.007,
+      "content": "<p style=\"text-align: center\">🏋️ <b>Fitness Journey</b></p>\n<p><i>Weekly workout schedule:</i></p>\n<ul>\n<li><b>Exercise Plan</b> 💪\n  <ul>\n    <li>Morning cardio</li>\n    <li>Strength training</li>\n    <li>Yoga sessions</li>\n  </ul>\n</li>\n<li>Health Metrics 📊\n  <ul>\n    <li>Track progress</li>\n    <li>Meal planning</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["fitness", "health", "routine"],
+      "createdAt": "2024-11-25T07:49:14.214Z",
+      "completed": false,
+      "images": [],
+      "order": 5000
+    },
+    {
+      "id": 1732609685725.008,
+      "content": "<p style=\"text-align: center\">🎨 <b>Creative Projects</b></p>\n<p><i>Personal art and creativity:</i></p>\n<ul>\n<li><b>Digital Art</b> 🖌️\n  <ul>\n    <li>Daily sketching</li>\n    <li>Portfolio pieces</li>\n    <li>Online gallery</li>\n  </ul>\n</li>\n<li>Writing Projects ✍️\n  <ul>\n    <li>Blog posts</li>\n    <li>Short stories</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["creative", "art", "writing"],
+      "createdAt": "2024-11-25T07:48:14.214Z",
+      "completed": false,
+      "images": [],
+      "order": 6000
     }
   ],
   "hideCompleted": false,

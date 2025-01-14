@@ -3,7 +3,7 @@
     "subjects": [
       {
         "id": 1732609685725.143,
-        "content": "<h3>🔧 Server Room B Upgrade</h3><div style=\"background-color: #fef2f2; padding: 12px; border-radius: 8px; dark:bg-red-900;\"><p><strong>Budget:</strong> $50K</p><ul><li>📋 Get vendor quotes for network equipment</li><li>👤 John to coordinate with IT Supply</li><li>📅 Schedule technical review</li></ul></div><p><em style=\"color: #ef4444;\">Priority: High</em> 🚨</p>",
+        "content": "<p style=\"text-align: center\">🔧 <b>Infrastructure Upgrade</b></p>\n<p><i>Server Room B Enhancement Project:</i></p>\n<ul>\n<li><b>Budget Planning</b> 💰\n  <ul>\n    <li>Equipment Quotes</li>\n    <li>Vendor Selection</li>\n    <li>Cost Analysis</li>\n  </ul>\n</li>\n<li>Implementation Steps 📋\n  <ul>\n    <li>Technical Review</li>\n    <li>Resource Allocation</li>\n    <li>Timeline Planning</li>\n  </ul>\n</li>\n</ul>",
         "tags": [
           "infrastructure",
           "budget",
@@ -16,7 +16,7 @@
       },
       {
         "id": 1732609685725.0798,
-        "content": "<h3>🏢 Datacenter Review</h3><table style=\"border-collapse: collapse; width: 100%;\" border=\"1\"><tbody><tr><td style=\"padding: 8px;\"><strong>Component</strong></td><td style=\"padding: 8px;\"><strong>Status</strong></td></tr><tr><td style=\"padding: 8px;\">Primary Connection</td><td style=\"padding: 8px;\">✅ Verified</td></tr><tr><td style=\"padding: 8px;\">Backup Systems</td><td style=\"padding: 8px;\">⏳ In Review</td></tr><tr><td style=\"padding: 8px;\">Documentation</td><td style=\"padding: 8px;\">📝 Updating</td></tr></tbody></table>",
+        "content": "<p style=\"text-align: center\">🏢 <b>Datacenter Assessment</b></p>\n<p><i>System health and performance review:</i></p>\n<ul>\n<li><b>Network Status</b> 🌐\n  <ul>\n    <li>Primary Connection ✅</li>\n    <li>Backup Systems ⏳</li>\n    <li>Redundancy Check</li>\n  </ul>\n</li>\n<li>Documentation 📝\n  <ul>\n    <li>System Architecture</li>\n    <li>Network Topology</li>\n    <li>Emergency Procedures</li>\n  </ul>\n</li>\n</ul>",
         "tags": [
           "datacenter",
           "connectivity",
@@ -29,16 +29,55 @@
       },
       {
         "id": 1732609685725.2966,
-        "content": "<h3>📊 Project Proposals</h3><div style=\"background-color: #f0f9ff; padding: 12px; border-radius: 8px; dark:bg-blue-900;\"><p><strong>Phase 2 & 3 Deliverables:</strong></p><ul><li>💰 Budget forecasts</li><li>📈 Resource allocation</li><li>⏱️ Timeline estimates</li><li>🎯 Success metrics</li></ul></div><p style=\"color: #3b82f6;\">Submit to management by EOW</p>",
+        "content": "<p style=\"text-align: center\">📊 <b>Strategic Planning</b></p>\n<p><i>Project proposals and resource planning:</i></p>\n<ol>\n<li><b>Financial Planning</b> 💰\n  <ul>\n    <li>Budget Forecasting</li>\n    <li>Cost Analysis</li>\n    <li>ROI Calculations</li>\n  </ul>\n</li>\n<li>Resource Management 📈\n  <ul>\n    <li>Team Allocation</li>\n    <li>Equipment Planning</li>\n  </ul>\n</li>\n</ol>",
         "tags": [
-          "datacenter",
           "planning",
-          "proposals"
+          "budget",
+          "strategy"
         ],
         "createdAt": "2024-11-25T05:53:28.531Z",
         "completed": false,
         "images": [],
         "order": 2000
+      },
+      {
+        "id": 1732609685725.2967,
+        "content": "<p style=\"text-align: center\">🔒 <b>Security Audit</b></p>\n<p><i>Annual security assessment and updates:</i></p>\n<ul>\n<li><b>Security Review</b> 🛡️\n  <ul>\n    <li>Access Controls</li>\n    <li>Network Security</li>\n    <li>Data Protection</li>\n  </ul>\n</li>\n<li>Compliance Check ✅\n  <ul>\n    <li>Policy Review</li>\n    <li>Regulatory Requirements</li>\n  </ul>\n</li>\n</ul>",
+        "tags": [
+          "security",
+          "compliance",
+          "audit"
+        ],
+        "createdAt": "2024-11-25T05:52:28.531Z",
+        "completed": false,
+        "images": [],
+        "order": 3000
+      },
+      {
+        "id": 1732609685725.2968,
+        "content": "<p style=\"text-align: center\">🔄 <b>System Migration</b></p>\n<p><i>Legacy system upgrade project:</i></p>\n<ul>\n<li><b>Migration Planning</b> 📋\n  <ul>\n    <li>Data Inventory</li>\n    <li>System Dependencies</li>\n    <li>Timeline Creation</li>\n  </ul>\n</li>\n<li>Implementation Steps ⚡\n  <ul>\n    <li>Testing Strategy</li>\n    <li>Rollback Plan</li>\n  </ul>\n</li>\n</ul>",
+        "tags": [
+          "migration",
+          "systems",
+          "upgrade"
+        ],
+        "createdAt": "2024-11-25T05:51:28.531Z",
+        "completed": false,
+        "images": [],
+        "order": 4000
+      },
+      {
+        "id": 1732609685725.8888,
+        "content": "<p style=\"text-align: center\">📱 <b>Mobile Device Management</b></p>\n<p><i>Enterprise mobility implementation:</i></p>\n<ul>\n<li><b>Device Policy</b> 📱\n  <ul>\n    <li>Security Guidelines</li>\n    <li>Access Controls</li>\n    <li>App Management</li>\n  </ul>\n</li>\n<li>Support Structure 🔧\n  <ul>\n    <li>Help Desk Setup</li>\n    <li>User Training</li>\n  </ul>\n</li>\n</ul>",
+        "tags": [
+          "mobile",
+          "management",
+          "security"
+        ],
+        "createdAt": "2024-11-25T05:50:28.531Z",
+        "completed": false,
+        "images": [],
+        "order": 5000
       }
     ],
     "hideCompleted": false,
