@@ -702,7 +702,10 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                         className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow 
                           hover:shadow-md transition-shadow subject-container
                           ${snapshot.isDragging ? 'shadow-xl' : ''} 
-                          ${index === selectedIndex ? 'ring-2 ring-blue-500' : ''}`}
+                          ${index === selectedIndex ? 'ring-2 ring-blue-500' : ''}
+                          ${subject.reminderDate === new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0] 
+                            ? 'border-2 border-red-500 dark:border-red-500' 
+                            : ''}`}
                         onClick={(e) => handleSubjectClick(index, e)}
                       >
                         <div className="flex items-start gap-4">
@@ -886,7 +889,7 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                     {subject.reminderDate ? (
                                       <div className="flex items-center gap-2">
                                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                                          Reminder set for {new Date(subject.reminderDate + 'T00:00:00').toLocaleDateString()}
+                                          Will bring to your attention on {new Date(subject.reminderDate + 'T00:00:00').toLocaleDateString()}
                                         </span>
                                         <button
                                           onClick={(e) => handleRemoveReminder(subject.id, e)}
