@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -8,11 +8,20 @@ interface RemindDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (date: Date) => void;
-  currentDate?: Date | null;
 }
 
-export default function RemindDialog({ isOpen, onClose, onConfirm, currentDate }: RemindDialogProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(currentDate || null);
+export default function RemindDialog({ isOpen, onClose, onConfirm }: RemindDialogProps) {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [dialogKey, setDialogKey] = useState(0);
+
+  useEffect(() => {
+    if (isOpen) {
+      setDialogKey(prev => prev + 1); // Force new instance when dialog opens
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      setSelectedDate(today);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -30,6 +39,7 @@ export default function RemindDialog({ isOpen, onClose, onConfirm, currentDate }
         </h2>
         <div className="mb-6">
           <DatePicker
+            key={dialogKey}
             selected={selectedDate}
             onChange={(date) => setSelectedDate(date)}
             minDate={new Date()}

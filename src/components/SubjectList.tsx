@@ -907,7 +907,7 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                         onClick={() => handleRemindClick(subject.id)}
                                         className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline"
                                       >
-                                        Remind
+                                        Remind me
                                       </button>
                                     )}
                                   </div>
@@ -930,11 +930,6 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
         isOpen={remindDialog.isOpen}
         onClose={handleRemindCancel}
         onConfirm={handleRemindConfirm}
-        currentDate={remindDialog.subjectId ? 
-          (subjects.find(s => s.id === remindDialog.subjectId)?.reminderDate ? 
-            new Date(subjects.find(s => s.id === remindDialog.subjectId)!.reminderDate!) : 
-            null) : 
-          null}
       />
       <DeleteConfirmationDialog
         isOpen={deleteConfirmation.isOpen}
