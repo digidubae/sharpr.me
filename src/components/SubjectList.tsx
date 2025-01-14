@@ -827,7 +827,7 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                     ))}
                                 </div>
                                 {index === selectedIndex && (
-                                  <div className="flex gap-2">
+                                  <div className="flex gap-2 items-center">
                                     <button
                                       onClick={() => handleEdit(subject)}
                                       className="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600"
@@ -839,6 +839,12 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                       className="px-3 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
                                     >
                                       Delete
+                                    </button>
+                                    <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+                                    <button
+                                      className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline"
+                                    >
+                                      Remind
                                     </button>
                                   </div>
                                 )}
