@@ -1,6 +1,7 @@
 import { google } from 'googleapis';
 import type { drive_v3 } from 'googleapis';
 import { GaxiosError } from 'gaxios';
+import { EventEmitter } from 'events';
 
 export class GoogleDriveService {
   private static FOLDER_NAME = 'Sharpr.me Data';
@@ -14,13 +15,26 @@ export class GoogleDriveService {
   private static driveInstance: drive_v3.Drive | null = null;
   private static connectionTimeout: NodeJS.Timeout | null = null;
   private static CLEANUP_TIMEOUT = 60000; // 60 seconds
+  private static MAX_LISTENERS = 10; // Maximum number of listeners per connection
 
-  private constructor(private auth: any) {}
+  private constructor(private auth: any) {
+    // Set max listeners for the auth instance
+    if (auth.transporter && auth.transporter.request instanceof EventEmitter) {
+      auth.transporter.request.setMaxListeners(GoogleDriveService.MAX_LISTENERS);
+    }
+  }
 
   static async initialize(accessToken: string) {
     try {
-      // Reuse existing instance if the access token matches
-      if (this.instance && this.instance.auth.credentials.access_token === accessToken) {
+      // Reuse existing instance if the access token matches and the instance is still valid
+      if (this.instance && 
+          this.instance.auth.credentials.access_token === accessToken && 
+          this.driveInstance) {
+        // Reset the cleanup timeout
+        if (this.connectionTimeout) {
+          clearTimeout(this.connectionTimeout);
+          this.connectionTimeout = setTimeout(() => this.cleanup(), this.CLEANUP_TIMEOUT);
+        }
         return this.instance;
       }
 
@@ -33,8 +47,19 @@ export class GoogleDriveService {
         scope: GoogleDriveService.SCOPES.join(' ')
       });
 
+      // Set max listeners for the auth instance
+      if (auth.transporter && auth.transporter.request instanceof EventEmitter) {
+        auth.transporter.request.setMaxListeners(this.MAX_LISTENERS);
+      }
+
       this.instance = new GoogleDriveService(auth);
       this.driveInstance = google.drive({ version: 'v3', auth });
+
+      // Set max listeners for the drive instance if it's an EventEmitter
+      const driveAsAny = this.driveInstance as any;
+      if (driveAsAny instanceof EventEmitter) {
+        driveAsAny.setMaxListeners(this.MAX_LISTENERS);
+      }
 
       // Set up cleanup timeout
       if (this.connectionTimeout) {
@@ -51,21 +76,43 @@ export class GoogleDriveService {
 
   private static async cleanup() {
     if (this.instance) {
-      // Clear the timeout if it exists
-      if (this.connectionTimeout) {
-        clearTimeout(this.connectionTimeout);
-        this.connectionTimeout = null;
-      }
+      try {
+        // Clear the timeout if it exists
+        if (this.connectionTimeout) {
+          clearTimeout(this.connectionTimeout);
+          this.connectionTimeout = null;
+        }
 
-      // Clear the instances
-      this.instance = null;
-      this.driveInstance = null;
+        // Clean up drive instance listeners if it's an EventEmitter
+        const driveAsAny = this.driveInstance as any;
+        if (driveAsAny instanceof EventEmitter) {
+          driveAsAny.removeAllListeners();
+        }
+
+        // Clean up auth instance listeners
+        if (this.instance.auth.transporter && 
+            this.instance.auth.transporter.request instanceof EventEmitter) {
+          this.instance.auth.transporter.request.removeAllListeners();
+        }
+
+        // Clear the instances
+        this.instance = null;
+        this.driveInstance = null;
+      } catch (error) {
+        console.error('Error during cleanup:', error);
+      }
     }
   }
 
   private getDrive(): drive_v3.Drive {
     if (!GoogleDriveService.driveInstance) {
       GoogleDriveService.driveInstance = google.drive({ version: 'v3', auth: this.auth });
+      
+      // Set max listeners for the new drive instance if it's an EventEmitter
+      const driveAsAny = GoogleDriveService.driveInstance as any;
+      if (driveAsAny instanceof EventEmitter) {
+        driveAsAny.setMaxListeners(GoogleDriveService.MAX_LISTENERS);
+      }
     }
     return GoogleDriveService.driveInstance;
   }
