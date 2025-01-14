@@ -15,14 +15,8 @@ export class GoogleDriveService {
   private static driveInstance: drive_v3.Drive | null = null;
   private static connectionTimeout: NodeJS.Timeout | null = null;
   private static CLEANUP_TIMEOUT = 60000; // 60 seconds
-  private static MAX_LISTENERS = 10; // Maximum number of listeners per connection
 
-  private constructor(private auth: any) {
-    // Set max listeners for the auth instance
-    if (auth.transporter && auth.transporter.request instanceof EventEmitter) {
-      auth.transporter.request.setMaxListeners(GoogleDriveService.MAX_LISTENERS);
-    }
-  }
+  private constructor(private auth: any) {}
 
   static async initialize(accessToken: string) {
     try {
@@ -47,19 +41,8 @@ export class GoogleDriveService {
         scope: GoogleDriveService.SCOPES.join(' ')
       });
 
-      // Set max listeners for the auth instance
-      if (auth.transporter && auth.transporter.request instanceof EventEmitter) {
-        auth.transporter.request.setMaxListeners(this.MAX_LISTENERS);
-      }
-
       this.instance = new GoogleDriveService(auth);
       this.driveInstance = google.drive({ version: 'v3', auth });
-
-      // Set max listeners for the drive instance if it's an EventEmitter
-      const driveAsAny = this.driveInstance as any;
-      if (driveAsAny instanceof EventEmitter) {
-        driveAsAny.setMaxListeners(this.MAX_LISTENERS);
-      }
 
       // Set up cleanup timeout
       if (this.connectionTimeout) {
@@ -83,18 +66,6 @@ export class GoogleDriveService {
           this.connectionTimeout = null;
         }
 
-        // Clean up drive instance listeners if it's an EventEmitter
-        const driveAsAny = this.driveInstance as any;
-        if (driveAsAny instanceof EventEmitter) {
-          driveAsAny.removeAllListeners();
-        }
-
-        // Clean up auth instance listeners
-        if (this.instance.auth.transporter && 
-            this.instance.auth.transporter.request instanceof EventEmitter) {
-          this.instance.auth.transporter.request.removeAllListeners();
-        }
-
         // Clear the instances
         this.instance = null;
         this.driveInstance = null;
@@ -107,12 +78,6 @@ export class GoogleDriveService {
   private getDrive(): drive_v3.Drive {
     if (!GoogleDriveService.driveInstance) {
       GoogleDriveService.driveInstance = google.drive({ version: 'v3', auth: this.auth });
-      
-      // Set max listeners for the new drive instance if it's an EventEmitter
-      const driveAsAny = GoogleDriveService.driveInstance as any;
-      if (driveAsAny instanceof EventEmitter) {
-        driveAsAny.setMaxListeners(GoogleDriveService.MAX_LISTENERS);
-      }
     }
     return GoogleDriveService.driveInstance;
   }
