@@ -1,12 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Increase the default keep-alive timeout
-  serverOptions: {
-    keepAliveTimeout: 60000, // 60 seconds
-  },
-  // Enable HTTP keep-alive
+  // Configure server runtime
   experimental: {
-    keepAlive: true,
+    serverActions: {
+      // Increase timeout for server actions
+      bodySizeLimit: '10mb',
+      allowedOrigins: ['*'],
+    },
   },
 }
 
