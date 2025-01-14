@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import { useDialog } from '@/context/DialogContext';
-import { PlusIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/outline';
 import RemindDialog from './RemindDialog';
 
 // Update the PinIcon component to accept a filled prop
@@ -620,6 +620,13 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     setRemindDialog({ isOpen: false, subjectId: null });
   };
 
+  const handleRemoveReminder = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent subject selection when clicking delete
+    updateSubject(id, { 
+      reminderDate: undefined
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
@@ -864,15 +871,27 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                       Delete
                                     </button>
                                     <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
-                                    <button
-                                      onClick={() => handleRemindClick(subject.id)}
-                                      className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline flex items-center gap-1"
-                                    >
-                                      <span>Remind</span>
-                                      {subject.reminderDate && (
-                                        <CheckIcon className="w-4 h-4" />
-                                      )}
-                                    </button>
+                                    {subject.reminderDate ? (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                                          Reminder set for {new Date(subject.reminderDate).toLocaleDateString()}
+                                        </span>
+                                        <button
+                                          onClick={(e) => handleRemoveReminder(subject.id, e)}
+                                          className="p-1 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
+                                          title="Remove reminder"
+                                        >
+                                          <TrashIcon className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        onClick={() => handleRemindClick(subject.id)}
+                                        className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline"
+                                      >
+                                        Remind
+                                      </button>
+                                    )}
                                   </div>
                                 )}
                               </>
