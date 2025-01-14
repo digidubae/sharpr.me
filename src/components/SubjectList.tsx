@@ -71,10 +71,20 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
           (selectedTags.length === 0 || selectedTags.every(tag => subject.tags.includes(tag)));
       })
       .sort((a, b) => {
-        // First sort by pinned status
+        // First check for today's reminders
+        const now = new Date();
+        const today = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        const aHasTodayReminder = a.reminderDate === today;
+        const bHasTodayReminder = b.reminderDate === today;
+        
+        if (aHasTodayReminder && !bHasTodayReminder) return -1;
+        if (!aHasTodayReminder && bHasTodayReminder) return 1;
+        
+        // Then sort by pinned status
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
-        // Then sort by order
+        
+        // Finally sort by order
         return a.order - b.order;
       }),
     [subjects, hideCompleted, searchQuery, selectedTags]
@@ -609,8 +619,10 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
 
   const handleRemindConfirm = (date: Date) => {
     if (remindDialog.subjectId) {
+      // Adjust the date to local timezone and get only the date part
+      const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
       updateSubject(remindDialog.subjectId, { 
-        reminderDate: date.toISOString().split('T')[0] // Store only the date part
+        reminderDate: localDate.toISOString().split('T')[0]
       });
     }
     setRemindDialog({ isOpen: false, subjectId: null });
@@ -874,7 +886,7 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                     {subject.reminderDate ? (
                                       <div className="flex items-center gap-2">
                                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                                          Reminder set for {new Date(subject.reminderDate).toLocaleDateString()}
+                                          Reminder set for {new Date(subject.reminderDate + 'T00:00:00').toLocaleDateString()}
                                         </span>
                                         <button
                                           onClick={(e) => handleRemoveReminder(subject.id, e)}
