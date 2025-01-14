@@ -634,8 +634,13 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
 
   const handleRemoveReminder = (id: number, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent subject selection when clicking delete
+    
+    // Get the minimum order value to place this subject at the top
+    const minOrder = Math.min(...subjects.map(s => s.order)) - 1000;
+    
     updateSubject(id, { 
-      reminderDate: undefined
+      reminderDate: undefined,
+      order: minOrder // Set the order to keep it at the top
     });
   };
 
