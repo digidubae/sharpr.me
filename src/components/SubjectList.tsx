@@ -894,10 +894,20 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                     {subject.reminderDate ? (
                                       <div className="flex items-center gap-2">
                                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                                          {subject.reminderDate === new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]
-                                            ? `For your attention ${new Date(subject.reminderDate + 'T00:00:00').toLocaleDateString()}`
-                                            : `Will bring to your attention on ${new Date(subject.reminderDate + 'T00:00:00').toLocaleDateString()}`
-                                          }
+                                          {(() => {
+                                            const today = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                                            const reminderDate = new Date(subject.reminderDate + 'T00:00:00');
+                                            const currentDate = new Date();
+                                            currentDate.setHours(0, 0, 0, 0);
+
+                                            if (subject.reminderDate === today) {
+                                              return `For your attention ${reminderDate.toLocaleDateString()}`;
+                                            } else if (reminderDate < currentDate) {
+                                              return `Brought to attention on ${reminderDate.toLocaleDateString()}`;
+                                            } else {
+                                              return `Will bring to your attention on ${reminderDate.toLocaleDateString()}`;
+                                            }
+                                          })()}
                                         </span>
                                         <button
                                           onClick={(e) => handleRemoveReminder(subject.id, e)}
