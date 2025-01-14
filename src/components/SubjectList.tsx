@@ -7,7 +7,8 @@ import { useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import { useDialog } from '@/context/DialogContext';
-import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
+import RemindDialog from './RemindDialog';
 
 // Update the PinIcon component to accept a filled prop
 function PinIcon({ filled = false }: { filled?: boolean }) {
@@ -57,6 +58,10 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
   const tagInputRef = useRef<HTMLInputElement>(null);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<number>(-1);
   const [isAddingTag, setIsAddingTag] = useState(false);
+  const [remindDialog, setRemindDialog] = useState<{ isOpen: boolean; subjectId: number | null }>({
+    isOpen: false,
+    subjectId: null
+  });
 
   const filteredAndSortedSubjects = useMemo(() => 
     subjects
@@ -597,6 +602,24 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     });
   };
 
+  // Add new handlers for remind functionality
+  const handleRemindClick = (id: number) => {
+    setRemindDialog({ isOpen: true, subjectId: id });
+  };
+
+  const handleRemindConfirm = (date: Date) => {
+    if (remindDialog.subjectId) {
+      updateSubject(remindDialog.subjectId, { 
+        reminderDate: date.toISOString().split('T')[0] // Store only the date part
+      });
+    }
+    setRemindDialog({ isOpen: false, subjectId: null });
+  };
+
+  const handleRemindCancel = () => {
+    setRemindDialog({ isOpen: false, subjectId: null });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
@@ -842,9 +865,13 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                     </button>
                                     <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
                                     <button
-                                      className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline"
+                                      onClick={() => handleRemindClick(subject.id)}
+                                      className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline flex items-center gap-1"
                                     >
-                                      Remind
+                                      <span>Remind</span>
+                                      {subject.reminderDate && (
+                                        <CheckIcon className="w-4 h-4" />
+                                      )}
                                     </button>
                                   </div>
                                 )}
@@ -862,6 +889,16 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
           </Droppable>
         </DragDropContext>
       )}
+      <RemindDialog
+        isOpen={remindDialog.isOpen}
+        onClose={handleRemindCancel}
+        onConfirm={handleRemindConfirm}
+        currentDate={remindDialog.subjectId ? 
+          (subjects.find(s => s.id === remindDialog.subjectId)?.reminderDate ? 
+            new Date(subjects.find(s => s.id === remindDialog.subjectId)!.reminderDate!) : 
+            null) : 
+          null}
+      />
       <DeleteConfirmationDialog
         isOpen={deleteConfirmation.isOpen}
         onConfirm={handleConfirmDelete}

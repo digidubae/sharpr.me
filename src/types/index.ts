@@ -28,6 +28,7 @@ export interface Subject {
   images: string[];
   order: number;
   isPinned?: boolean;
+  reminderDate?: string;
 }
 
 export interface LibrarySpace {
