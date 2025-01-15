@@ -644,6 +644,13 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     });
   };
 
+  // Add new handler for sending subject to bottom
+  const handleSendToBottom = (id: number) => {
+    // Get the maximum order value and add 1000 to ensure it goes to the bottom
+    const maxOrder = Math.max(...subjects.map(s => s.order)) + 1000;
+    updateSubject(id, { order: maxOrder });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
@@ -924,6 +931,17 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                       >
                                         Remind me
                                       </button>
+                                    )}
+                                    {index !== filteredAndSortedSubjects.length - 1 && (
+                                      <>
+                                        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+                                        <button
+                                          onClick={() => handleSendToBottom(subject.id)}
+                                          className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline"
+                                        >
+                                          Send to bottom
+                                        </button>
+                                      </>
                                     )}
                                   </div>
                                 )}
