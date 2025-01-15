@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStorageProvider, SpaceData } from '@/utils/storage';
+import { getStorageProvider } from '@/utils/storage';
+import { SpaceData } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {

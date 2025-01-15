@@ -2,59 +2,13 @@
 
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Subject, Category, VisitedSpace } from '@/types';
+import { Subject, Category, VisitedSpace, SubjectContextType, SubjectProviderProps } from '@/types';
 import { useSession } from 'next-auth/react';
 import { fetchWithAuth } from '@/utils/api';
 
-export interface SubjectContextType {
-  subjects: Subject[];
-  setSubjects: (subjects: Subject[]) => void;
-  title: string;
-  setTitle: (title: string) => void;
-  hideCompleted: boolean;
-  setHideCompleted: (hide: boolean) => void;
-  sortOption: string;
-  setSortOption: (option: string) => void;
-  addVisitedSpace: (space: VisitedSpace) => void;
-  categories: Category[];
-  setCategories: (categories: Category[]) => void;
-  recoverFromSnapshot: (snapshotUrl: string) => Promise<void>;
-  isInLibrary: boolean;
-  setIsInLibrary: (isInLibrary: boolean) => void;
-  isExample?: boolean;
-  getAllTags: () => string[];
-  selectedTags: string[];
-  toggleTag: (tag: string) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  addSubject: (subject: Omit<Subject, 'order'>) => void;
-  updateSubject: (id: number, updates: Partial<Subject>) => void;
-  reorderSubjects: (sourceIndex: number, destinationIndex: number) => void;
-  deleteSubject: (id: number) => void;
-  toggleHideCompleted: () => void;
-  isSyncing: boolean;
-  setIsSyncing: (isSyncing: boolean) => void;
-  syncState: 'idle' | 'syncing' | 'error';
-  setSyncState: (state: 'idle' | 'syncing' | 'error') => void;
-  isLocked: boolean;
-  setIsLocked: (isLocked: boolean) => void;
-  rawData?: any;
-}
 
-interface SubjectProviderProps {
-  children: React.ReactNode;
-  initialData?: {
-    id: string;
-    title: string;
-    subjects: Subject[];
-    categories: Category[];
-    isExample?: boolean;
-    needsDecryption?: boolean;
-    encryptedData?: string;
-    isLocked?: boolean;
-    rawData?: any;
-  };
-}
+
+
 
 const SubjectContext = createContext<SubjectContextType | undefined>(undefined);
 

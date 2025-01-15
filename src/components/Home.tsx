@@ -1,35 +1,33 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import SubjectList from "@/components/SubjectList";
 import AddSubjectForm from "@/components/AddSubjectForm";
 import SearchBar from "@/components/SearchBar";
-import Shimmer from './Shimmer';
+import SubjectList from "@/components/SubjectList";
 import { useSubjects } from "@/context/SubjectContext";
-import { saveAs } from 'file-saver';
-import DeleteSpaceDialog from './DeleteSpaceDialog';
-import SwitchSpaceDialog from './SwitchSpaceDialog';
-import { VisitedSpace, Category } from '@/types';
-import RecoverSnapshotDialog from './RecoverSnapshotDialog';
-import { useSession } from 'next-auth/react';
-import { Editor } from '@tinymce/tinymce-react';
-import LoadTime from './LoadTime';
-import { toast } from 'react-hot-toast';
-import SyncStatus from './SyncStatus';
-import { fetchWithAuth } from '@/utils/api';
-import EncryptionDialog from './EncryptionDialog';
-import { encryptData, decryptData } from '@/utils/encryption';
-import { useSyncStatus } from '@/hooks/useSyncStatus';
-import { getStorageProvider } from '@/utils/storage';
-import { useSpaces } from '@/hooks/useSpaces';
+import {  useSpaces } from "@/hooks/useSpaces";
+import { useSyncStatus } from "@/hooks/useSyncStatus";
+import { Category, Space } from "@/types";
+import { fetchWithAuth } from "@/utils/api";
+import { decryptData, encryptData } from "@/utils/encryption";
+import { saveAs } from "file-saver";
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
+import DeleteSpaceDialog from "./DeleteSpaceDialog";
+import EncryptionDialog from "./EncryptionDialog";
+import LoadTime from "./LoadTime";
+import RecoverSnapshotDialog from "./RecoverSnapshotDialog";
+import Shimmer from "./Shimmer";
+import SwitchSpaceDialog from "./SwitchSpaceDialog";
+import SyncStatus from "./SyncStatus";
 
-interface Space {
-  id: string;
-  title: string;
-  addedAt: number;
-  userId: string;
-}
+// interface Space {
+//   id: string;
+//   title: string;
+//   addedAt: number;
+//   userId: string;
+// }
 
 interface ImportedSubject {
   id: number;
@@ -41,16 +39,10 @@ interface ImportedSubject {
   order: number;
 }
 
-interface ImportedData {
-  subjects: ImportedSubject[];
-  title: string;
-  categories: Category[];
-}
-
 const EXAMPLE_TYPES: { [key: string]: string } = {
-  'personal': 'personal.json',
-  'study': 'study.json',
-  'project': 'project.json'
+  personal: "personal.json",
+  study: "study.json",
+  project: "project.json",
 };
 
 export default function Home() {
@@ -62,27 +54,21 @@ export default function Home() {
   const [showEncryptionDialog, setShowEncryptionDialog] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isImporting, setIsImporting] = useState(false);
-  const { 
-    subjects, 
-    setSubjects, 
-    title, 
-    setTitle, 
-    hideCompleted,
+  const {
+    subjects,
+    setSubjects,
+    title,
+    setTitle,
     setHideCompleted,
-    sortOption,
     setSortOption,
-    addVisitedSpace, 
     categories,
     setCategories,
-    recoverFromSnapshot,
-    isInLibrary,
-    setIsInLibrary,
     isExample,
     setIsSyncing,
     setSyncState,
     setIsLocked,
     isLocked,
-    rawData
+    rawData,
   } = useSubjects();
   const [isLoading, setIsLoading] = useState(true);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -106,7 +92,7 @@ export default function Home() {
   // Check if space is encrypted on load
   useEffect(() => {
     const checkEncryption = async () => {
-      if (!id || id.toString().endsWith('-example')) {
+      if (!id || id.toString().endsWith("-example")) {
         setIsLoading(false);
         return;
       }
@@ -118,36 +104,46 @@ export default function Home() {
           try {
             // Keep loading state true until decryption is complete
             setIsLoading(true);
-            
+
             // Get the encrypted data from the context instead of fetching
             const data = rawData;
             if (!data?.encryptedData) {
-              throw new Error('No encrypted data found');
+              throw new Error("No encrypted data found");
             }
 
             // Attempt to decrypt with stored password
-            const decryptedData = await decryptData(data.encryptedData, storedPassword);
-            
+            const decryptedData = await decryptData(
+              data.encryptedData,
+              storedPassword
+            );
+
             // Validate the decrypted data
-            if (decryptedData && decryptedData.subjects && decryptedData.categories) {
+            if (
+              decryptedData &&
+              decryptedData.subjects &&
+              decryptedData.categories
+            ) {
               // Update all states at once to prevent unnecessary syncs
               setSubjects(decryptedData.subjects);
               setCategories(decryptedData.categories);
               setIsLoading(false);
               return; // Skip showing password prompt if successful
             } else {
-              throw new Error('Invalid decrypted data structure');
+              throw new Error("Invalid decrypted data structure");
             }
           } catch (error) {
             // Only remove the stored password if it's an actual decryption error
-            if (error instanceof Error && 
-                (error.message === 'Decryption failed - Invalid password or corrupted data' ||
-                 error.message === 'Malformed UTF-8 data')) {
+            if (
+              error instanceof Error &&
+              (error.message ===
+                "Decryption failed - Invalid password or corrupted data" ||
+                error.message === "Malformed UTF-8 data")
+            ) {
               sessionStorage.removeItem(`space-${id}-password`);
-              console.error('Stored password is invalid:', error);
+              console.error("Stored password is invalid:", error);
             } else {
               // For other errors (network, etc.), keep the password
-              console.error('Error during decryption:', error);
+              console.error("Error during decryption:", error);
             }
             // Show password prompt when decryption fails
             setShowPasswordPrompt(true);
@@ -155,7 +151,7 @@ export default function Home() {
             return;
           }
         }
-        
+
         // Show password prompt and keep loading state false
         setShowPasswordPrompt(true);
         setIsLoading(false);
@@ -172,24 +168,26 @@ export default function Home() {
   // Load example data if needed
   useEffect(() => {
     const loadExampleData = async () => {
-      if (!id?.toString().endsWith('-example')) {
+      if (!id?.toString().endsWith("-example")) {
         return;
       }
-      
+
       try {
-        const exampleType = id.toString().split('-')[0] || 'work';
-        const exampleFile = EXAMPLE_TYPES[exampleType] || EXAMPLE_TYPES['work'];
-        
+        const exampleType = id.toString().split("-")[0] || "work";
+        const exampleFile = EXAMPLE_TYPES[exampleType] || EXAMPLE_TYPES["work"];
+
         const example = await import(`@/data/examples/${exampleFile}`);
         setTitle(example.title);
-        setSubjects(example.subjects.map((subject: ImportedSubject) => ({
-          ...subject,
-          id: Date.now() + Math.random(),
-        })));
+        setSubjects(
+          example.subjects.map((subject: ImportedSubject) => ({
+            ...subject,
+            id: Date.now() + Math.random(),
+          }))
+        );
         setHideCompleted(example.hideCompleted);
-        setSortOption('manual');
+        setSortOption("manual");
       } catch (error) {
-        console.error('Error loading example:', error);
+        console.error("Error loading example:", error);
       }
     };
 
@@ -204,15 +202,19 @@ export default function Home() {
       // Get the encrypted data from the context instead of fetching
       const data = rawData;
       if (!data?.encryptedData) {
-        throw new Error('No encrypted data found');
+        throw new Error("No encrypted data found");
       }
 
       // Attempt to decrypt
       const decryptedData = await decryptData(data.encryptedData, password);
-      
+
       // Validate the decrypted data
-      if (!decryptedData || !decryptedData.subjects || !decryptedData.categories) {
-        throw new Error('Invalid decrypted data structure');
+      if (
+        !decryptedData ||
+        !decryptedData.subjects ||
+        !decryptedData.categories
+      ) {
+        throw new Error("Invalid decrypted data structure");
       }
 
       // Store the password only after successful decryption and validation
@@ -225,14 +227,17 @@ export default function Home() {
       setCategories(decryptedData.categories);
       setIsLoading(false);
     } catch (error) {
-      console.error('Error decrypting space:', error);
-      if (error instanceof Error && 
-          (error.message === 'Decryption failed - Invalid password or corrupted data' ||
-           error.message === 'Malformed UTF-8 data')) {
-        setPasswordError('Incorrect password. Please try again.');
+      console.error("Error decrypting space:", error);
+      if (
+        error instanceof Error &&
+        (error.message ===
+          "Decryption failed - Invalid password or corrupted data" ||
+          error.message === "Malformed UTF-8 data")
+      ) {
+        setPasswordError("Incorrect password. Please try again.");
         // toast.error('Incorrect password');
       } else {
-        setPasswordError('Failed to decrypt space. Please try again.');
+        setPasswordError("Failed to decrypt space. Please try again.");
         // toast.error('Failed to decrypt space');
       }
       setIsLoading(false);
@@ -251,9 +256,9 @@ export default function Home() {
   };
 
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       setIsEditingTitle(false);
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       setIsEditingTitle(false);
       if (titleInputRef.current) {
         titleInputRef.current.value = title;
@@ -265,45 +270,44 @@ export default function Home() {
     const exportData = {
       title,
       subjects,
-      categories
+      categories,
     };
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: 'application/json'
+      type: "application/json",
     });
-    saveAs(blob, `${title.toLowerCase().replace(/\s+/g, '-')}.json`);
+    saveAs(blob, `${title.toLowerCase().replace(/\s+/g, "-")}.json`);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const file = e.target.files?.[0];
       if (!file) {
-        throw new Error('Please select a file to import');
+        throw new Error("Please select a file to import");
       }
 
       const jsonContent = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
-        
+
         reader.onload = (event) => {
-          if (typeof event.target?.result !== 'string') {
-            reject(new Error('Failed to read file'));
+          if (typeof event.target?.result !== "string") {
+            reject(new Error("Failed to read file"));
             return;
           }
           resolve(event.target.result);
         };
 
-        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.onerror = () => reject(new Error("Failed to read file"));
         reader.readAsText(file);
       });
 
       const importedData = JSON.parse(jsonContent);
       await handleImport(importedData);
-
     } catch (error) {
-      console.error('Import error:', error);
-      toast.error('Failed to import space data.');
+      console.error("Import error:", error);
+      toast.error("Failed to import space data.");
     } finally {
       if (e.target) {
-        e.target.value = '';
+        e.target.value = "";
       }
     }
   };
@@ -311,16 +315,16 @@ export default function Home() {
   const handleImport = async (data: any) => {
     try {
       if (!id) {
-        throw new Error('Space ID is required');
+        throw new Error("Space ID is required");
       }
 
       setIsImporting(true);
 
       // Handle different types of id from useParams
-      const spaceId = typeof id === 'object' && 'id' in id ? id.id : id;
-      
+      const spaceId = typeof id === "object" && "id" in id ? id.id : id;
+
       if (!data.title) {
-        throw new Error('Invalid import data structure');
+        throw new Error("Invalid import data structure");
       }
 
       // Sanitize the imported data
@@ -329,51 +333,50 @@ export default function Home() {
         title: data.title,
         subjects: (data.subjects || []).map((subject: ImportedSubject) => ({
           id: subject.id,
-          content: subject.content || '',
+          content: subject.content || "",
           tags: Array.isArray(subject.tags) ? subject.tags : [],
           createdAt: subject.createdAt || new Date().toISOString(),
           completed: Boolean(subject.completed),
           images: Array.isArray(subject.images) ? subject.images : [],
-          order: typeof subject.order === 'number' ? subject.order : 0
+          order: typeof subject.order === "number" ? subject.order : 0,
         })),
         categories: (data.categories || []).map((category: Category) => ({
           id: category.id || crypto.randomUUID(),
-          name: category.name || '',
-          tags: Array.isArray(category.tags) ? category.tags : []
-        }))
+          name: category.name || "",
+          tags: Array.isArray(category.tags) ? category.tags : [],
+        })),
       };
 
-      console.log('Importing data:', sanitizedData);
+      console.log("Importing data:", sanitizedData);
 
-      const response = await fetch('/api/subjects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sanitizedData)
+      const response = await fetch("/api/subjects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sanitizedData),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error('Failed to save imported data');
+        throw new Error("Failed to save imported data");
       }
 
       // Update the UI with the sanitized data
       setTitle(sanitizedData.title);
       setSubjects(sanitizedData.subjects);
       setCategories(sanitizedData.categories);
-      
-      toast.success('Data imported successfully', {
+
+      toast.success("Data imported successfully", {
         style: {
-          background: '#10B981',
-          color: '#fff'
+          background: "#10B981",
+          color: "#fff",
         },
         iconTheme: {
-          primary: '#fff',
-          secondary: '#10B981'
-        }
+          primary: "#fff",
+          secondary: "#10B981",
+        },
       });
     } catch (error) {
-      console.error('Error importing data:', error);
-      toast.error('Failed to import space data.');
+      console.error("Error importing data:", error);
+      toast.error("Failed to import space data.");
     } finally {
       setIsImporting(false);
     }
@@ -384,29 +387,33 @@ export default function Home() {
 
     try {
       if (!id) {
-        throw new Error('Space ID is required');
+        throw new Error("Space ID is required");
       }
 
       // Handle different types of id from useParams
-      const spaceId = typeof id === 'object' && 'id' in id ? id.id : id;
+      const spaceId = typeof id === "object" && "id" in id ? id.id : id;
 
       const response = await fetchWithAuth(`/api/spaces/${spaceId}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || errorData.details || 'Failed to delete space');
+        throw new Error(
+          errorData.error || errorData.details || "Failed to delete space"
+        );
       }
 
       // Wait for the cache invalidation to complete before navigating
       await invalidateSpaces();
-      
+
       // Only navigate after successful deletion and cache invalidation
-      router.push('/');
+      router.push("/");
     } catch (error) {
-      console.error('Delete space error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to delete space');
+      console.error("Delete space error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete space"
+      );
       throw error; // Re-throw to be caught by the DeleteSpaceDialog
     }
   };
@@ -416,24 +423,26 @@ export default function Home() {
 
     try {
       if (!id) {
-        throw new Error('Space ID is required');
+        throw new Error("Space ID is required");
       }
 
-      const spaceId = typeof id === 'object' && 'id' in id ? id.id : id;
-      console.log('Attempting to recover snapshot:', { spaceId, snapshotUrl });
-      
+      const spaceId = typeof id === "object" && "id" in id ? id.id : id;
+      console.log("Attempting to recover snapshot:", { spaceId, snapshotUrl });
+
       // First fetch the snapshot data
-      const response = await fetch(`/api/snapshots/${spaceId}?url=${encodeURIComponent(snapshotUrl)}`);
-      console.log('Snapshot recovery API response status:', response.status);
-      
+      const response = await fetch(
+        `/api/snapshots/${spaceId}?url=${encodeURIComponent(snapshotUrl)}`
+      );
+      console.log("Snapshot recovery API response status:", response.status);
+
       if (!response.ok) {
         const error = await response.json();
-        console.error('Snapshot recovery API error:', error);
-        throw new Error(error.error || 'Failed to fetch snapshot');
+        console.error("Snapshot recovery API error:", error);
+        throw new Error(error.error || "Failed to fetch snapshot");
       }
-      
+
       const snapshotData = await response.json();
-      console.log('Received snapshot data:', snapshotData);
+      console.log("Received snapshot data:", snapshotData);
 
       // Check if this is an encrypted snapshot
       if (snapshotData.isLocked && snapshotData.encryptedData) {
@@ -444,25 +453,25 @@ export default function Home() {
           subjects: [], // Keep empty as it's encrypted
           categories: [], // Keep empty as it's encrypted
           isLocked: true,
-          encryptedData: snapshotData.encryptedData
+          encryptedData: snapshotData.encryptedData,
         };
 
         // Save the encrypted snapshot data
         const response = await fetchWithAuth(`/api/subjects?id=${spaceId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(recoveredData)
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(recoveredData),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to save recovered encrypted snapshot');
+          throw new Error("Failed to save recovered encrypted snapshot");
         }
 
         // Close the recovery dialog
         setShowRecoverDialog(false);
-        
+
         // Show success message
-        toast.success('Snapshot recovered successfully');
+        toast.success("Snapshot recovered successfully");
 
         // Set encrypted state and show password prompt
         setIsLocked(true);
@@ -475,12 +484,12 @@ export default function Home() {
       const recoveredData = {
         title: snapshotData.title || title,
         subjects: snapshotData.subjects || [],
-        categories: snapshotData.categories || []
+        categories: snapshotData.categories || [],
       };
-      
+
       // Validate the recovered data
       if (!recoveredData.title) {
-        throw new Error('Invalid snapshot data: missing title');
+        throw new Error("Invalid snapshot data: missing title");
       }
 
       // Prepare the data for saving
@@ -489,44 +498,46 @@ export default function Home() {
         title: recoveredData.title,
         subjects: recoveredData.subjects.map((subject: ImportedSubject) => ({
           id: subject.id || Date.now() + Math.random(),
-          content: subject.content || '',
+          content: subject.content || "",
           tags: Array.isArray(subject.tags) ? subject.tags : [],
           createdAt: subject.createdAt || new Date().toISOString(),
           completed: Boolean(subject.completed),
           images: Array.isArray(subject.images) ? subject.images : [],
-          order: typeof subject.order === 'number' ? subject.order : 0
+          order: typeof subject.order === "number" ? subject.order : 0,
         })),
         categories: recoveredData.categories.map((category: Category) => ({
           id: category.id || crypto.randomUUID(),
-          name: category.name || '',
-          tags: Array.isArray(category.tags) ? category.tags : []
-        }))
+          name: category.name || "",
+          tags: Array.isArray(category.tags) ? category.tags : [],
+        })),
       };
 
-      console.log('Sanitized data for saving:', sanitizedData);
+      console.log("Sanitized data for saving:", sanitizedData);
 
       // Save the recovered data
-      const saveResponse = await fetch('/api/subjects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sanitizedData)
+      const saveResponse = await fetch("/api/subjects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sanitizedData),
       });
 
       if (!saveResponse.ok) {
         const error = await saveResponse.json();
-        throw new Error(error.error || 'Failed to save recovered data');
+        throw new Error(error.error || "Failed to save recovered data");
       }
 
       // Update the UI
       setTitle(sanitizedData.title);
       setSubjects(sanitizedData.subjects);
       setCategories(sanitizedData.categories);
-      
+
       setShowRecoverDialog(false);
-      toast.success('Snapshot recovered successfully');
+      toast.success("Snapshot recovered successfully");
     } catch (error) {
-      console.error('Error recovering snapshot:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to recover snapshot');
+      console.error("Error recovering snapshot:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to recover snapshot"
+      );
     }
   };
 
@@ -538,52 +549,53 @@ export default function Home() {
 
     try {
       // Show encrypting toast
-      const toastId = toast.loading('Encrypting space...');
+      const toastId = toast.loading("Encrypting space...");
 
       // Start sync
       setIsSyncing(true);
-      setSyncState('syncing');
+      setSyncState("syncing");
 
       // Delete all snapshots first since they contain unencrypted data
       const deleteResponse = await fetchWithAuth(`/api/snapshots/${id}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
 
       if (!deleteResponse.ok) {
-        throw new Error('Failed to delete snapshots');
+        throw new Error("Failed to delete snapshots");
       }
 
       // Prepare the data for encryption (everything except title)
       // Clean the data to prevent circular references
-      const cleanSubjects = subjects.map(subject => {
+      const cleanSubjects = subjects.map((subject) => {
         // Extract only the necessary fields and ensure they are serializable
         const cleanSubject = {
           id: subject.id,
-          content: typeof subject.content === 'string' ? subject.content : '',
-          textContent: typeof subject.textContent === 'string' ? subject.textContent : '',
+          content: typeof subject.content === "string" ? subject.content : "",
+          textContent:
+            typeof subject.textContent === "string" ? subject.textContent : "",
           tags: Array.isArray(subject.tags) ? [...subject.tags] : [],
           createdAt: subject.createdAt || new Date().toISOString(),
           completed: Boolean(subject.completed),
           images: Array.isArray(subject.images) ? [...subject.images] : [],
           isPinned: Boolean(subject.isPinned),
-          order: typeof subject.order === 'number' ? subject.order : 0
+          order: typeof subject.order === "number" ? subject.order : 0,
         };
         return cleanSubject;
       });
 
-      const cleanCategories = categories.map(category => ({
+      const cleanCategories = categories.map((category) => ({
         id: category.id,
         name: category.name,
-        tags: Array.isArray(category.tags) ? [...category.tags] : []
+        tags: Array.isArray(category.tags) ? [...category.tags] : [],
       }));
 
       const dataToEncrypt = {
         subjects: cleanSubjects,
-        categories: cleanCategories
+        categories: cleanCategories,
       };
 
       // Log the data before encryption to check for issues
-      console.log('Data to encrypt:', JSON.stringify(dataToEncrypt));
+      console.log("Data to encrypt:", JSON.stringify(dataToEncrypt));
 
       // Encrypt the data
       const encryptedData = await encryptData(dataToEncrypt, password);
@@ -595,53 +607,53 @@ export default function Home() {
         subjects: [], // Empty because it's in encrypted form
         categories: [], // Empty because it's in encrypted form
         isLocked: true,
-        encryptedData
+        encryptedData,
       };
 
       // Save to backend
       const response = await fetchWithAuth(`/api/subjects?id=${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(spaceData)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(spaceData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save encrypted space');
+        throw new Error("Failed to save encrypted space");
       }
 
       // Create snapshot
       const snapshotData = {
         spaceId: id,
-        data: spaceData
+        data: spaceData,
       };
-      
-      const snapshotResponse = await fetchWithAuth('/api/snapshots', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(snapshotData)
+
+      const snapshotResponse = await fetchWithAuth("/api/snapshots", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(snapshotData),
       });
 
       if (!snapshotResponse.ok) {
-        throw new Error('Failed to create snapshot');
+        throw new Error("Failed to create snapshot");
       }
 
       // Only after successful save, update the UI state
       setIsLocked(true); // Set the locked state in context
-      
+
       // Update the loading toast to success
-      toast.success('Space encrypted successfully', {
-        id: toastId
+      toast.success("Space encrypted successfully", {
+        id: toastId,
       });
 
       // End sync successfully
-      setSyncState('idle');
+      setSyncState("idle");
 
       // After everything is done, refresh the page to load the encrypted state
       router.refresh();
     } catch (error) {
-      console.error('Error encrypting space:', error);
-      toast.error('Failed to encrypt space');
-      setSyncState('error');
+      console.error("Error encrypting space:", error);
+      toast.error("Failed to encrypt space");
+      setSyncState("error");
     } finally {
       setIsSyncing(false);
     }
@@ -655,26 +667,26 @@ export default function Home() {
 
     try {
       // Show decrypting toast
-      const toastId = toast.loading('Turning off encryption...');
+      const toastId = toast.loading("Turning off encryption...");
 
       // Start sync
       setIsSyncing(true);
-      setSyncState('syncing');
+      setSyncState("syncing");
 
       // Delete all snapshots first since they contain encrypted data
       const deleteResponse = await fetchWithAuth(`/api/snapshots/${id}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
 
       if (!deleteResponse.ok) {
-        throw new Error('Failed to delete snapshots');
+        throw new Error("Failed to delete snapshots");
       }
 
       // Create a clean space data object with ONLY the decrypted data
       const cleanSpaceData = {
         id,
         title,
-        subjects: subjects.map(subject => ({
+        subjects: subjects.map((subject) => ({
           id: subject.id,
           content: subject.content,
           textContent: subject.textContent,
@@ -683,38 +695,38 @@ export default function Home() {
           completed: subject.completed,
           images: subject.images,
           isPinned: subject.isPinned,
-          order: subject.order
+          order: subject.order,
         })),
         categories,
         isLocked: false,
-        isPinned: false
+        isPinned: false,
       };
 
       // Save to backend
       const saveResponse = await fetchWithAuth(`/api/subjects?id=${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cleanSpaceData)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cleanSpaceData),
       });
 
       if (!saveResponse.ok) {
-        throw new Error('Failed to save decrypted space');
+        throw new Error("Failed to save decrypted space");
       }
 
       // Create snapshot with clean data
       const snapshotData = {
         spaceId: id,
-        data: cleanSpaceData
+        data: cleanSpaceData,
       };
-      
-      const snapshotResponse = await fetchWithAuth('/api/snapshots', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(snapshotData)
+
+      const snapshotResponse = await fetchWithAuth("/api/snapshots", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(snapshotData),
       });
 
       if (!snapshotResponse.ok) {
-        throw new Error('Failed to create snapshot');
+        throw new Error("Failed to create snapshot");
       }
 
       // Update the UI state
@@ -722,21 +734,21 @@ export default function Home() {
 
       // Explicitly clean up stored password only when turning off encryption
       sessionStorage.removeItem(`space-${id}-password`);
-      
+
       // Update the loading toast to success
-      toast.success('Encryption turned off successfully', {
-        id: toastId
+      toast.success("Encryption turned off successfully", {
+        id: toastId,
       });
 
       // End sync successfully
-      setSyncState('idle');
+      setSyncState("idle");
 
       // After everything is done, refresh the page
       router.refresh();
     } catch (error) {
-      console.error('Error turning off encryption:', error);
-      toast.error('Failed to turn off encryption');
-      setSyncState('error');
+      console.error("Error turning off encryption:", error);
+      toast.error("Failed to turn off encryption");
+      setSyncState("error");
     } finally {
       setIsSyncing(false);
     }
@@ -746,7 +758,9 @@ export default function Home() {
     return (
       <div className="min-h-screen flex flex-col">
         <div className="flex-grow">
-          <Shimmer message={isImporting ? 'Importing space...' : 'Loading space...'} />
+          <Shimmer
+            message={isImporting ? "Importing space..." : "Loading space..."}
+          />
         </div>
         <LoadTime />
       </div>
@@ -762,7 +776,7 @@ export default function Home() {
             onClose={() => {
               setShowPasswordPrompt(false);
               setPasswordError(null);
-              router.push('/');
+              router.push("/");
             }}
             onConfirm={handlePasswordSubmit}
             mode="decrypt"
@@ -806,8 +820,10 @@ export default function Home() {
                 maxLength={50}
               />
             ) : (
-              <h1 
-                className={`text-3xl font-bold mb-4 ${!isExample ? 'cursor-pointer hover:opacity-80' : ''}`}
+              <h1
+                className={`text-3xl font-bold mb-4 ${
+                  !isExample ? "cursor-pointer hover:opacity-80" : ""
+                }`}
                 onDoubleClick={handleTitleDoubleClick}
               >
                 {title}
@@ -828,31 +844,53 @@ export default function Home() {
                      dark:text-gray-400 dark:hover:text-gray-100"
                   title="More options"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                          d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    />
                   </svg>
                 </button>
-                
+
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
-                    <div className="py-1" role="menu" aria-orientation="vertical">
+                    <div
+                      className="py-1"
+                      role="menu"
+                      aria-orientation="vertical"
+                    >
                       <button
                         onClick={() => {
-                          document.getElementById('import-file')?.click();
+                          document.getElementById("import-file")?.click();
                           setShowDropdown(false);
                         }}
                         className="w-full flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 
                            hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap"
                         role="menuitem"
                       >
-                        <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        <svg
+                          className="w-5 h-5 mr-2 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                          />
                         </svg>
                         <span>Import</span>
                       </button>
-                      
+
                       <button
                         onClick={() => {
                           handleExport();
@@ -862,13 +900,22 @@ export default function Home() {
                            hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap"
                         role="menuitem"
                       >
-                        <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        <svg
+                          className="w-5 h-5 mr-2 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
                         </svg>
                         <span>Export</span>
                       </button>
-                      
+
                       <button
                         onClick={() => {
                           setShowRecoverDialog(true);
@@ -878,13 +925,22 @@ export default function Home() {
                            hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap"
                         role="menuitem"
                       >
-                        <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        <svg
+                          className="w-5 h-5 mr-2 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          />
                         </svg>
                         <span>Recover Snapshot</span>
                       </button>
-                      
+
                       <button
                         onClick={() => {
                           setShowSwitchSpaceDialog(true);
@@ -894,9 +950,18 @@ export default function Home() {
                            hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap"
                         role="menuitem"
                       >
-                        <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        <svg
+                          className="w-5 h-5 mr-2 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                          />
                         </svg>
                         <span>Switch Space</span>
                       </button>
@@ -911,21 +976,39 @@ export default function Home() {
                         role="menuitem"
                       >
                         {isLocked ? (
-                          <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0" />
+                          <svg
+                            className="w-5 h-5 mr-2 flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0"
+                            />
                           </svg>
                         ) : (
-                          <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                  d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                          <svg
+                            className="w-5 h-5 mr-2 flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                            />
                           </svg>
                         )}
-                        <span>Encryption {isLocked ? 'Settings' : ''}</span>
+                        <span>Encryption {isLocked ? "Settings" : ""}</span>
                       </button>
 
                       <div className="border-t border-gray-200 dark:border-gray-600 my-1"></div>
-                      
+
                       <button
                         onClick={() => {
                           setShowDeleteSpaceDialog(true);
@@ -935,9 +1018,18 @@ export default function Home() {
                            hover:bg-red-50 dark:hover:bg-red-900/20 whitespace-nowrap"
                         role="menuitem"
                       >
-                        <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <svg
+                          className="w-5 h-5 mr-2 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
                         </svg>
                         <span>Delete Space</span>
                       </button>
@@ -947,7 +1039,7 @@ export default function Home() {
               </div>
             )}
           </header>
-          
+
           <main className="space-y-8">
             <SearchBar />
             <AddSubjectForm />
@@ -978,7 +1070,7 @@ export default function Home() {
                 isOpen={showEncryptionDialog}
                 onClose={() => setShowEncryptionDialog(false)}
                 onConfirm={isLocked ? handleTurnOffEncryption : handleEncrypt}
-                mode={isLocked ? 'turn-off' : 'encrypt'}
+                mode={isLocked ? "turn-off" : "encrypt"}
               />
             </>
           )}
@@ -987,4 +1079,4 @@ export default function Home() {
       <LoadTime />
     </div>
   );
-} 
+}

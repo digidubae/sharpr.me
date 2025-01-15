@@ -1,4 +1,4 @@
-import { ImportedData, LibrarySpace, Subject, Category } from '@/types';
+import { ImportedData, LibrarySpace, Subject, Category, StorageProvider, SpaceData, LibraryItem } from '@/types';
 import { GoogleDriveService } from './googleDrive';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth';
@@ -15,35 +15,7 @@ declare module 'next-auth' {
   }
 }
 
-export interface SpaceData {
-  id: string;
-  title: string;
-  subjects: Subject[];
-  categories: Category[];
-  isLocked?: boolean;
-  encryptedData?: string;
-}
 
-export interface LibraryItem {
-  isPinned?: boolean;
-}
-
-export interface StorageProvider {
-  // Space data operations
-  getSpace: (id: string) => Promise<SpaceData | null>;
-  saveSpace: (id: string, data: Partial<SpaceData>) => Promise<void>;
-  deleteSpace: (id: string) => Promise<void>;
-  listSpaces: () => Promise<string[]>;
-  
-  // Library operations
-  updateLibraryItem: (userId: string, spaceId: string, data: LibraryItem) => Promise<void>;
-  
-  // Snapshot operations
-  createSnapshot: (spaceId: string, data: ImportedData) => Promise<string>;
-  listSnapshots: (spaceId: string) => Promise<string[]>;
-  deleteAllSnapshots: (spaceId: string) => Promise<void>;
-  getSnapshotData: (fileId: string) => Promise<any>;
-}
 
 export class DriveStorageProvider implements StorageProvider {
   constructor(private driveService: GoogleDriveService) {}

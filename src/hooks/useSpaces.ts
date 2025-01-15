@@ -1,14 +1,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchWithAuth } from '@/utils/api';
 import { useSession } from 'next-auth/react';
+import { Space } from '@/types';
 
-export interface Space {
-  id: string;
-  title: string;
-  addedAt: number;
-  userId: string;
-  isPinned?: boolean;
-}
+
+
 
 const SPACES_QUERY_KEY = 'spaces';
 const CACHE_KEY = 'sharpr-cache';
