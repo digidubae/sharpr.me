@@ -1,19 +1,16 @@
 'use client';
 
-import { useSession, signIn } from 'next-auth/react';
-import Link from 'next/link';
-import { SignOutButton } from '@/components/SignOutButton';
-import { useEffect, useState, useRef } from 'react';
-import SpaceCard from '@/components/SpaceCard';
-import { LibrarySpace } from '@/types';
-import { fetchWithAuth } from '@/utils/api';
 import Shimmer from '@/components/Shimmer';
+import { SignOutButton } from '@/components/SignOutButton';
+import SpaceCard from '@/components/SpaceCard';
 import { useSpaces } from '@/hooks/useSpaces';
+import { signIn, useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function HomePage() {
   const { data: session, status: authStatus } = useSession();
   const { spaces: librarySpaces, isLoading: spacesLoading, invalidateSpaces } = useSpaces();
-  const hasLoadedRef = useRef(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
