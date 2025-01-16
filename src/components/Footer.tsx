@@ -1,14 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import packageInfo from '../../package.json';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import packageInfo from '../../package.json';
 
 export default function Footer() {
   const pathname = usePathname();
-  const { status } = useSession();
   const isInSpace = pathname.startsWith('/s/');
   const isInPrivacyPolicy = pathname === '/privacy-policy';
   const isInSettings = pathname === '/settings';

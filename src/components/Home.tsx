@@ -4,13 +4,11 @@ import AddSubjectForm from "@/components/AddSubjectForm";
 import SearchBar from "@/components/SearchBar";
 import SubjectList from "@/components/SubjectList";
 import { useSubjects } from "@/context/SubjectContext";
-import {  useSpaces } from "@/hooks/useSpaces";
-import { useSyncStatus } from "@/hooks/useSyncStatus";
-import { Category, Space } from "@/types";
+import { useSpaces } from "@/hooks/useSpaces";
+import { Category, ImportedSubject } from "@/types";
 import { fetchWithAuth } from "@/utils/api";
 import { decryptData, encryptData } from "@/utils/encryption";
 import { saveAs } from "file-saver";
-import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -22,23 +20,6 @@ import Shimmer from "./Shimmer";
 import SwitchSpaceDialog from "./SwitchSpaceDialog";
 import SyncStatus from "./SyncStatus";
 
-// interface Space {
-//   id: string;
-//   title: string;
-//   addedAt: number;
-//   userId: string;
-// }
-
-interface ImportedSubject {
-  id: number;
-  content: string;
-  tags: string[];
-  createdAt: string;
-  completed: boolean;
-  images: string[];
-  order: number;
-}
-
 const EXAMPLE_TYPES: { [key: string]: string } = {
   personal: "personal.json",
   study: "study.json",
@@ -48,7 +29,6 @@ const EXAMPLE_TYPES: { [key: string]: string } = {
 export default function Home() {
   const { id } = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showDeleteSpaceDialog, setShowDeleteSpaceDialog] = useState(false);
   const [showEncryptionDialog, setShowEncryptionDialog] = useState(false);
@@ -76,10 +56,7 @@ export default function Home() {
   const [showSwitchSpaceDialog, setShowSwitchSpaceDialog] = useState(false);
   const [showRecoverDialog, setShowRecoverDialog] = useState(false);
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-  const { syncState, startSync, endSync } = useSyncStatus();
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [spaces, setSpaces] = useState<Space[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const { invalidateSpaces } = useSpaces();
 
   // Update document title when space title changes
@@ -595,7 +572,7 @@ export default function Home() {
       };
 
       // Log the data before encryption to check for issues
-      console.log("Data to encrypt:", JSON.stringify(dataToEncrypt));
+      // console.log("Data to encrypt:", JSON.stringify(dataToEncrypt));
 
       // Encrypt the data
       const encryptedData = await encryptData(dataToEncrypt, password);

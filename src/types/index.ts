@@ -126,3 +126,13 @@ export interface StorageProvider {
   deleteAllSnapshots: (spaceId: string) => Promise<void>;
   getSnapshotData: (fileId: string) => Promise<any>;
 }
+
+export interface ImportedSubject {
+  id: number;
+  content: string;
+  tags: string[];
+  createdAt: string;
+  completed: boolean;
+  images: string[];
+  order: number;
+}

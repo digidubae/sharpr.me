@@ -130,29 +130,38 @@ export default function SyncStatus() {
 
       // Update last saved data reference
       lastSavedDataRef.current = JSON.stringify(dataToSave);
-
-      // Create snapshot
-      try {
-        const snapshotData = {
-          spaceId: id,
-          data: dataToSave
-        };
-        
-        const snapshotResponse = await fetchWithAuth('/api/snapshots', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(snapshotData)
-        });
-
-        if (!snapshotResponse.ok) {
-          throw new Error('Failed to create snapshot');
-        }
-      } catch (error) {
-        console.error('Snapshot creation error:', error);
-        toast.error('Failed to create snapshot. Your changes are saved but backup failed.');
-      }
-
+      
+      // Set sync state to idle after successful save
       setSyncState('idle');
+      setIsSyncing(false);
+
+      // Create snapshot after successful save, but don't wait for it
+      const createSnapshot = async () => {
+        try {
+          console.log("Creating snapshot...");
+          const snapshotData = {
+            spaceId: id,
+            data: dataToSave
+          };
+          
+          const snapshotResponse = await fetchWithAuth('/api/snapshots', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(snapshotData)
+          });
+
+          if (!snapshotResponse.ok) {
+            throw new Error('Failed to create snapshot');
+          }
+        } catch (error) {
+          console.error('Snapshot creation error:', error);
+          toast.error('Failed to create snapshot. Your changes are saved but backup failed.');
+        }
+      };
+
+      // Fire and forget snapshot creation
+      createSnapshot();
+
     } catch (error) {
       console.error('Space sync error:', error);
       setSyncState('error');
