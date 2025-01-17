@@ -41,7 +41,8 @@ export default function RichTextEditor({ content, onChange, onKeyDown, editable 
       }}
       value={content}
       onEditorChange={(newContent) => onChange(newContent)}
-      tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.7.2/tinymce.min.js"
+      // tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.7.2/tinymce.min.js"
+      tinymceScriptSrc='/tinymce/tinymce.min.js'
       init={{
         promotion: false,
         height: 300,
@@ -81,6 +82,8 @@ export default function RichTextEditor({ content, onChange, onKeyDown, editable 
             a { color: #2563eb; }
           `}
         `,
+        // @ts-ignore
+        license_key: 'gpl',
         disabled: !editable,
         paste_data_images: true,
         skin: isDarkMode ? 'oxide-dark' : 'oxide',
