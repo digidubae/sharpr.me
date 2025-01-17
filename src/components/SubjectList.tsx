@@ -71,14 +71,14 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
           (selectedTags.length === 0 || selectedTags.every(tag => subject.tags.includes(tag)));
       })
       .sort((a, b) => {
-        // First check for today's reminders
+        // First check for today's and past reminders
         const now = new Date();
         const today = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-        const aHasTodayReminder = a.reminderDate === today;
-        const bHasTodayReminder = b.reminderDate === today;
+        const aHasPastOrTodayReminder = a.reminderDate && (a.reminderDate <= today);
+        const bHasPastOrTodayReminder = b.reminderDate && (b.reminderDate <= today);
         
-        if (aHasTodayReminder && !bHasTodayReminder) return -1;
-        if (!aHasTodayReminder && bHasTodayReminder) return 1;
+        if (aHasPastOrTodayReminder && !bHasPastOrTodayReminder) return -1;
+        if (!aHasPastOrTodayReminder && bHasPastOrTodayReminder) return 1;
         
         // Then sort by pinned status
         if (a.isPinned && !b.isPinned) return -1;
@@ -715,7 +715,7 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                           hover:shadow-md transition-shadow subject-container
                           ${snapshot.isDragging ? 'shadow-xl' : ''} 
                           ${index === selectedIndex ? 'ring-2 ring-blue-500' : ''}
-                          ${subject.reminderDate === new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0] 
+                          ${subject.reminderDate && subject.reminderDate <= new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0] 
                             ? 'border-2 border-red-500 dark:border-red-500' 
                             : ''}`}
                         onClick={(e) => handleSubjectClick(index, e)}
