@@ -70,7 +70,7 @@ export default function SyncStatus() {
       saveData(currentData);
     };
 
-    const debouncedSave = setTimeout(initiateSync, 1000);
+    const debouncedSave = setTimeout(initiateSync, 100);
     
     return () => {
       isStale = true;
@@ -155,7 +155,7 @@ export default function SyncStatus() {
           }
         } catch (error) {
           console.error('Snapshot creation error:', error);
-          toast.error('Failed to create snapshot. Your changes are saved but backup failed.');
+          toast.success('Failed to create snapshot. Your changes are saved but backup failed');
         }
       };
 

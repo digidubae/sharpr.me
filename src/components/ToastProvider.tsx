@@ -25,7 +25,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               color: '#fff',
             },
             icon: null,
-          }
+          },
+          success: {
+            duration: 5000,
+            style: {
+              background: '#34d399',
+              color: '#fff',
+            },
+          },
         }}
       >
         {(t) => (
