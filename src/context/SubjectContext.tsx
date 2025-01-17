@@ -1,28 +1,45 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { Subject, Category, VisitedSpace, SubjectContextType, SubjectProviderProps } from '@/types';
-import { useSession } from 'next-auth/react';
-import { fetchWithAuth } from '@/utils/api';
-
-
-
-
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import { useParams } from "next/navigation";
+import {
+  Subject,
+  Category,
+  VisitedSpace,
+  SubjectContextType,
+  SubjectProviderProps,
+} from "@/types";
+import { useSession } from "next-auth/react";
+import { fetchWithAuth } from "@/utils/api";
 
 const SubjectContext = createContext<SubjectContextType | undefined>(undefined);
 
-export function SubjectProvider({ children, initialData }: SubjectProviderProps) {
+export function SubjectProvider({
+  children,
+  initialData,
+}: SubjectProviderProps) {
   const { id } = useParams();
-  const [subjects, setSubjects] = useState<Subject[]>(initialData?.subjects || []);
-  const [title, setTitle] = useState(initialData?.title || 'Sharpr.me');
+  const [subjects, setSubjects] = useState<Subject[]>(
+    initialData?.subjects || []
+  );
+  const [title, setTitle] = useState(initialData?.title || "Sharpr.me");
   const [hideCompleted, setHideCompleted] = useState(false);
-  const [sortOption, setSortOption] = useState('newest');
-  const [categories, setCategories] = useState<Category[]>(initialData?.categories || []);
+  const [sortOption, setSortOption] = useState("newest");
+  const [categories, setCategories] = useState<Category[]>(
+    initialData?.categories || []
+  );
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncState, setSyncState] = useState<'idle' | 'syncing' | 'error'>('idle');
+  const [syncState, setSyncState] = useState<"idle" | "syncing" | "error">(
+    "idle"
+  );
   const [isInLibrary, setIsInLibrary] = useState(false);
   const [isLocked, setIsLocked] = useState(initialData?.isLocked || false);
   const { data: session } = useSession();
@@ -30,17 +47,25 @@ export function SubjectProvider({ children, initialData }: SubjectProviderProps)
 
   // Check library status when component mounts
   useEffect(() => {
+    let isMounted = true;
+    const abortController = new AbortController();
+
     const checkLibraryStatus = async () => {
       if (!isExample && session?.user && id && !isLocked) {
         try {
-          const response = await fetchWithAuth('/api/library');
-          if (response.ok) {
+          const response = await fetchWithAuth("/api/library", {
+            signal: abortController.signal,
+          });
+          if (isMounted && response.ok) {
             const library = await response.json();
             setIsInLibrary(library.some((item: any) => item.id === id));
           }
-        } catch (error) {
-          // Silently handle the error - library status is not critical
-          console.error('Error checking library status:', error);
+        } catch (error: any) {
+          if (error.name !== 'AbortError' && isMounted) {
+            console.error("Error checking library status:", error);
+          } else {
+            console.log(`checkLibraryStatus: fetch aborted`);
+          }
         }
       }
     };
@@ -49,6 +74,11 @@ export function SubjectProvider({ children, initialData }: SubjectProviderProps)
     if (!isLocked) {
       checkLibraryStatus();
     }
+
+    return () => {
+      isMounted = false;
+      abortController.abort();
+    };
   }, [session, id, isExample, isLocked]);
 
   useEffect(() => {
@@ -61,66 +91,73 @@ export function SubjectProvider({ children, initialData }: SubjectProviderProps)
 
   const getAllTags = useCallback(() => {
     const allTags = new Set<string>();
-    subjects.forEach(subject => {
-      subject.tags.forEach(tag => allTags.add(tag));
+    subjects.forEach((subject) => {
+      subject.tags.forEach((tag) => allTags.add(tag));
     });
     return Array.from(allTags);
   }, [subjects]);
 
   const toggleTag = useCallback((tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   }, []);
 
-  const addSubject = useCallback((subject: Omit<Subject, 'order'>) => {
-    setSubjects(prev => {
+  const addSubject = useCallback((subject: Omit<Subject, "order">) => {
+    setSubjects((prev) => {
       const minOrder = prev.reduce((min, s) => Math.min(min, s.order), 0);
       return [{ ...subject, order: minOrder - 1000 }, ...prev];
     });
   }, []);
 
   const updateSubject = useCallback((id: number, updates: Partial<Subject>) => {
-    setSubjects(prev => prev.map(subject => 
-      subject.id === id ? { ...subject, ...updates } : subject
-    ));
+    setSubjects((prev) =>
+      prev.map((subject) =>
+        subject.id === id ? { ...subject, ...updates } : subject
+      )
+    );
   }, []);
 
-  const reorderSubjects = useCallback((sourceIndex: number, destinationIndex: number) => {
-    setSubjects(prev => {
-      const result = Array.from(prev);
-      const [removed] = result.splice(sourceIndex, 1);
-      result.splice(destinationIndex, 0, removed);
-      
-      // Update order values
-      return result.map((subject, index) => ({
-        ...subject,
-        order: index + 1
-      }));
-    });
-  }, []);
+  const reorderSubjects = useCallback(
+    (sourceIndex: number, destinationIndex: number) => {
+      setSubjects((prev) => {
+        const result = Array.from(prev);
+        const [removed] = result.splice(sourceIndex, 1);
+        result.splice(destinationIndex, 0, removed);
+
+        // Update order values
+        return result.map((subject, index) => ({
+          ...subject,
+          order: index + 1,
+        }));
+      });
+    },
+    []
+  );
 
   const addVisitedSpace = useCallback(() => {
     if (isExample || !id) return;
 
-    const visitedSpaces = JSON.parse(localStorage.getItem('visitedSpaces') || '[]');
-    const existingSpaceIndex = visitedSpaces.findIndex((space: any) => space.id === id);
+    const visitedSpaces = JSON.parse(
+      localStorage.getItem("visitedSpaces") || "[]"
+    );
+    const existingSpaceIndex = visitedSpaces.findIndex(
+      (space: any) => space.id === id
+    );
 
     if (existingSpaceIndex !== -1) {
       // Update existing space
       visitedSpaces[existingSpaceIndex] = {
         ...visitedSpaces[existingSpaceIndex],
         title,
-        lastVisited: Date.now()
+        lastVisited: Date.now(),
       };
     } else {
       // Add new space
       visitedSpaces.push({
         id,
         title,
-        lastVisited: Date.now()
+        lastVisited: Date.now(),
       });
     }
 
@@ -145,21 +182,21 @@ export function SubjectProvider({ children, initialData }: SubjectProviderProps)
       visitedSpaces.push(...pinnedSpaces, ...unpinnedSpaces);
     }
 
-    localStorage.setItem('visitedSpaces', JSON.stringify(visitedSpaces));
+    localStorage.setItem("visitedSpaces", JSON.stringify(visitedSpaces));
   }, [id, title, isExample]);
 
   const recoverFromSnapshot = useCallback(async (data: any) => {
     try {
-      setTitle(data.title || '');
+      setTitle(data.title || "");
       setSubjects(data.subjects || []);
       setCategories(data.categories || []);
     } catch (error) {
-      console.error('Error recovering from snapshot:', error);
+      console.error("Error recovering from snapshot:", error);
     }
   }, []);
 
   const deleteSubject = useCallback((id: number) => {
-    setSubjects(prev => prev.filter(subject => subject.id !== id));
+    setSubjects((prev) => prev.filter((subject) => subject.id !== id));
   }, []);
 
   const toggleHideCompleted = useCallback(() => {
@@ -205,7 +242,7 @@ export function SubjectProvider({ children, initialData }: SubjectProviderProps)
     setSyncState,
     isLocked,
     setIsLocked,
-    rawData: initialData?.rawData
+    rawData: initialData?.rawData,
   };
 
   return (
@@ -218,7 +255,7 @@ export function SubjectProvider({ children, initialData }: SubjectProviderProps)
 export function useSubjects() {
   const context = useContext(SubjectContext);
   if (context === undefined) {
-    throw new Error('useSubjects must be used within a SubjectProvider');
+    throw new Error("useSubjects must be used within a SubjectProvider");
   }
   return context;
-} 
+}

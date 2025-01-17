@@ -9,7 +9,6 @@ const requestQueue: Map<string, Promise<Response>> = new Map();
 
 export async function fetchWithAuth(url: string, options: FetchOptions = {}) {
   const { requireAuth = true, ...fetchOptions } = options;
-
   // Create a unique key for this request
   const requestKey = JSON.stringify({ url, ...fetchOptions });
 
@@ -29,6 +28,8 @@ export async function fetchWithAuth(url: string, options: FetchOptions = {}) {
           'Cache-Control': 'no-store',
         },
       });
+
+      console.log(`fetchWithAuth: ${url} response: ${response.status}`);
 
       if (response.status === 401 && requireAuth) {
         // Try to refresh the session
