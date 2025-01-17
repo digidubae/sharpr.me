@@ -1,24 +1,46 @@
-'use client';
+"use client";
 
 import { useSubjects } from "@/context/SubjectContext";
-import { useState, useEffect, useRef, KeyboardEvent as ReactKeyboardEvent, useMemo } from "react";
-import RichTextEditor from './RichTextEditor';
-import { useCallback } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd';
-import DeleteConfirmationDialog from './DeleteConfirmationDialog';
-import { useDialog } from '@/context/DialogContext';
-import { PlusIcon, XMarkIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/outline';
-import RemindDialog from './RemindDialog';
+import {
+  useState,
+  useEffect,
+  useRef,
+  KeyboardEvent as ReactKeyboardEvent,
+  useMemo,
+} from "react";
+import RichTextEditor from "./RichTextEditor";
+import { useCallback } from "react";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+  DraggableProvided,
+} from "@hello-pangea/dnd";
+import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
+import { useDialog } from "@/context/DialogContext";
+import {
+  PlusIcon,
+  XMarkIcon,
+  CheckIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
+import RemindDialog from "./RemindDialog";
 
 // Update the PinIcon component to accept a filled prop
 function PinIcon({ filled = false }: { filled?: boolean }) {
   return (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor">
-      <path 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        strokeWidth={2} 
-        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" 
+    <svg
+      className="w-5 h-5"
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
       />
     </svg>
   );
@@ -29,26 +51,32 @@ interface SubjectListProps {
   preventSync?: boolean;
 }
 
-export default function SubjectList({ readOnly, preventSync }: SubjectListProps) {
-  const { 
-    subjects, 
-    searchQuery, 
-    selectedTags, 
+export default function SubjectList({
+  readOnly,
+  preventSync,
+}: SubjectListProps) {
+  const {
+    subjects,
+    searchQuery,
+    selectedTags,
     hideCompleted,
     deleteSubject,
     updateSubject,
     toggleHideCompleted,
     reorderSubjects,
-    getAllTags
+    getAllTags,
   } = useSubjects();
 
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ content: '', tags: '' });
+  const [editForm, setEditForm] = useState({ content: "", tags: "" });
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const contentEditableRef = useRef<HTMLDivElement>(null);
-  const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; subjectId: number | null }>({
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean;
+    subjectId: number | null;
+  }>({
     isOpen: false,
-    subjectId: null
+    subjectId: null,
   });
   const selectedSubjectRef = useRef<HTMLDivElement | null>(null);
   const { isDialogOpen } = useDialog();
@@ -56,61 +84,91 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [cursorPosition, setCursorPosition] = useState(0);
   const tagInputRef = useRef<HTMLInputElement>(null);
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<number>(-1);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] =
+    useState<number>(-1);
   const [isAddingTag, setIsAddingTag] = useState(false);
-  const [remindDialog, setRemindDialog] = useState<{ isOpen: boolean; subjectId: number | null }>({
+  const [remindDialog, setRemindDialog] = useState<{
+    isOpen: boolean;
+    subjectId: number | null;
+  }>({
     isOpen: false,
-    subjectId: null
+    subjectId: null,
   });
 
-  const filteredAndSortedSubjects = useMemo(() => 
-    subjects
-      .filter(subject => {
-        return (!hideCompleted || !subject.completed) &&
-          (subject.textContent || subject.content.replace(/(<[^>]+>|data:image\/[^;]+;base64,[^"]+)/g, '')).toLowerCase().includes(searchQuery.toLowerCase()) &&
-          (selectedTags.length === 0 || selectedTags.every(tag => subject.tags.includes(tag)));
-      })
-      .sort((a, b) => {
-        // First check for today's and past reminders
-        const now = new Date();
-        const today = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-        const aHasPastOrTodayReminder = a.reminderDate && (a.reminderDate <= today);
-        const bHasPastOrTodayReminder = b.reminderDate && (b.reminderDate <= today);
-        
-        if (aHasPastOrTodayReminder && !bHasPastOrTodayReminder) return -1;
-        if (!aHasPastOrTodayReminder && bHasPastOrTodayReminder) return 1;
-        
-        // Then sort by pinned status
-        if (a.isPinned && !b.isPinned) return -1;
-        if (!a.isPinned && b.isPinned) return 1;
-        
-        // Finally sort by order
-        return a.order - b.order;
-      }),
+  const filteredAndSortedSubjects = useMemo(
+    () =>
+      subjects
+        .filter((subject) => {
+          return (
+            (!hideCompleted || !subject.completed) &&
+            (
+              subject.textContent ||
+              subject.content.replace(
+                /(<[^>]+>|data:image\/[^;]+;base64,[^"]+)/g,
+                ""
+              )
+            )
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()) &&
+            (selectedTags.length === 0 ||
+              selectedTags.every((tag) => subject.tags.includes(tag)))
+          );
+        })
+        .sort((a, b) => {
+          // First check for today's and past reminders
+          const now = new Date();
+          const today = new Date(
+            now.getTime() - now.getTimezoneOffset() * 60000
+          )
+            .toISOString()
+            .split("T")[0];
+          const aHasPastOrTodayReminder =
+            a.reminderDate && a.reminderDate <= today;
+          const bHasPastOrTodayReminder =
+            b.reminderDate && b.reminderDate <= today;
+
+          if (aHasPastOrTodayReminder && !bHasPastOrTodayReminder) return -1;
+          if (!aHasPastOrTodayReminder && bHasPastOrTodayReminder) return 1;
+
+          // Then sort by pinned status
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+
+          // Finally sort by order
+          return a.order - b.order;
+        }),
     [subjects, hideCompleted, searchQuery, selectedTags]
   );
 
   const getHighlightedContent = useMemo(() => {
     const highlightText = (content: string) => {
       if (!searchQuery) return content;
-      
+
       // Create a temporary div to parse HTML content
-      const tempDiv = document.createElement('div');
+      const tempDiv = document.createElement("div");
       tempDiv.innerHTML = content;
-      
+
       const highlightTextNode = (node: Node) => {
         if (node.nodeType === Node.TEXT_NODE) {
-          const text = node.textContent || '';
-          const escapedQuery = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const regex = new RegExp(`(${escapedQuery})`, 'gi');
-          
+          const text = node.textContent || "";
+          const escapedQuery = searchQuery.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          );
+          const regex = new RegExp(`(${escapedQuery})`, "gi");
+
           if (regex.test(text)) {
-            const span = document.createElement('span');
-            span.innerHTML = text.replace(regex, `<mark class="bg-yellow-200 dark:bg-yellow-900">$1</mark>`);
+            const span = document.createElement("span");
+            span.innerHTML = text.replace(
+              regex,
+              `<mark class="bg-yellow-200 dark:bg-yellow-900">$1</mark>`
+            );
             node.parentNode?.replaceChild(span, node);
           }
-        } else if (node.nodeType === Node.ELEMENT_NODE && 
-                  !(node as Element).matches('mark, img, code, pre')) {
+        } else if (
+          node.nodeType === Node.ELEMENT_NODE &&
+          !(node as Element).matches("mark, img, code, pre")
+        ) {
           // Recursively process child nodes, but skip already highlighted text and specific elements
           Array.from(node.childNodes).forEach(highlightTextNode);
         }
@@ -118,34 +176,34 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
 
       // Process all nodes
       Array.from(tempDiv.childNodes).forEach(highlightTextNode);
-      
+
       return tempDiv.innerHTML;
     };
 
     // Create a map of highlighted content for visible subjects
     return new Map(
-      filteredAndSortedSubjects.map(subject => [
+      filteredAndSortedSubjects.map((subject) => [
         subject.id,
-        highlightText(subject.content)
+        highlightText(subject.content),
       ])
     );
   }, [searchQuery, filteredAndSortedSubjects]);
 
   const handleToggleComplete = (id: number) => {
-    const subject = subjects.find(s => s.id === id);
+    const subject = subjects.find((s) => s.id === id);
     if (!subject) return;
 
     // Get the highest order value
-    const maxOrder = Math.max(...subjects.map(s => s.order));
-    
+    const maxOrder = Math.max(...subjects.map((s) => s.order));
+
     // If marking as complete, move to end by setting order higher than max
     // If marking as incomplete, move to beginning by setting order lower than min
     const newOrder = subject.completed ? 0 : maxOrder + 1000;
 
     // Update both completed status and order
-    updateSubject(id, { 
+    updateSubject(id, {
       completed: !subject.completed,
-      order: newOrder 
+      order: newOrder,
     });
 
     // Only adjust selection if the subject will be hidden
@@ -153,10 +211,15 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
       const currentSubject = filteredAndSortedSubjects[selectedIndex];
       if (currentSubject?.id === id) {
         // Find the next visible subject
-        const remainingSubjects = filteredAndSortedSubjects.filter(s => s.id !== id);
+        const remainingSubjects = filteredAndSortedSubjects.filter(
+          (s) => s.id !== id
+        );
         if (remainingSubjects.length > 0) {
           // Keep the same index unless it would be out of bounds
-          const newIndex = Math.min(selectedIndex, remainingSubjects.length - 1);
+          const newIndex = Math.min(
+            selectedIndex,
+            remainingSubjects.length - 1
+          );
           setSelectedIndex(newIndex);
         } else {
           // No subjects left visible, clear selection
@@ -166,13 +229,13 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     }
   };
 
-  const handleEdit = useCallback((subject: typeof subjects[0]) => {
+  const handleEdit = useCallback((subject: (typeof subjects)[0]) => {
     // Prevent the Enter keypress from being added to the textarea
     setTimeout(() => {
       setEditingId(subject.id);
       setEditForm({
         content: subject.content,
-        tags: subject.tags.join(', ')
+        tags: subject.tags.join(", "),
       });
     }, 0);
   }, []); // Remove readOnly dependency
@@ -186,85 +249,108 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
       if (editingId !== null) return;
 
       // Don't handle shortcuts when focus is in input/textarea/contenteditable
-      if (document.activeElement?.tagName === 'INPUT' || 
-          document.activeElement?.tagName === 'TEXTAREA' ||
-          document.activeElement?.getAttribute('contenteditable') === 'true') {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.getAttribute("contenteditable") === "true"
+      ) {
         return;
       }
 
       switch (e.key) {
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
-          setSelectedIndex(prev => {
-            const newIndex = prev < filteredAndSortedSubjects.length - 1 ? prev + 1 : prev;
+          setSelectedIndex((prev) => {
+            const newIndex =
+              prev < filteredAndSortedSubjects.length - 1 ? prev + 1 : prev;
             // If reaching the last item, scroll to bottom
             if (newIndex === filteredAndSortedSubjects.length - 1) {
-              window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+              window.scrollTo({
+                top: document.documentElement.scrollHeight,
+                behavior: "smooth",
+              });
             }
             return newIndex;
           });
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
-          setSelectedIndex(prev => {
+          setSelectedIndex((prev) => {
             const newIndex = prev > 0 ? prev - 1 : prev;
             // If reaching the first item, scroll to top
             if (newIndex === 0) {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.scrollTo({ top: 0, behavior: "smooth" });
             }
             return newIndex;
           });
           break;
-        case 'Enter':
-          if (selectedIndex >= 0 && selectedIndex < filteredAndSortedSubjects.length) {
+        case "Enter":
+          if (
+            selectedIndex >= 0 &&
+            selectedIndex < filteredAndSortedSubjects.length
+          ) {
             handleEdit(filteredAndSortedSubjects[selectedIndex]);
           }
           break;
-        case 'd':
+        case "d":
           e.preventDefault();
-          if (selectedIndex >= 0 && selectedIndex < filteredAndSortedSubjects.length) {
+          if (
+            selectedIndex >= 0 &&
+            selectedIndex < filteredAndSortedSubjects.length
+          ) {
             setDeleteConfirmation({
               isOpen: true,
-              subjectId: filteredAndSortedSubjects[selectedIndex].id
+              subjectId: filteredAndSortedSubjects[selectedIndex].id,
             });
           }
           break;
-        case ' ':
+        case " ":
           e.preventDefault();
-          if (selectedIndex >= 0 && selectedIndex < filteredAndSortedSubjects.length) {
+          if (
+            selectedIndex >= 0 &&
+            selectedIndex < filteredAndSortedSubjects.length
+          ) {
             handleToggleComplete(filteredAndSortedSubjects[selectedIndex].id);
           }
           break;
-        case 'h':
+        case "h":
           e.preventDefault();
           toggleHideCompleted();
           break;
-        case 'p':
+        case "p":
           e.preventDefault();
-          if (selectedIndex >= 0 && selectedIndex < filteredAndSortedSubjects.length) {
+          if (
+            selectedIndex >= 0 &&
+            selectedIndex < filteredAndSortedSubjects.length
+          ) {
             const subject = filteredAndSortedSubjects[selectedIndex];
             updateSubject(subject.id, { isPinned: !subject.isPinned });
           }
           break;
-        case 't':
+        case "t":
           e.preventDefault();
-          if (selectedIndex >= 0) {  // Only if a subject is selected
+          if (selectedIndex >= 0) {
+            // Only if a subject is selected
             setSelectedIndex(0);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: "smooth" });
           }
           break;
-        case 'b':
+        case "b":
           e.preventDefault();
-          if (selectedIndex >= 0) {  // Only if a subject is selected
+          if (selectedIndex >= 0) {
+            // Only if a subject is selected
             setSelectedIndex(filteredAndSortedSubjects.length - 1);
-            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+            window.scrollTo({
+              top: document.documentElement.scrollHeight,
+              behavior: "smooth",
+            });
           }
           break;
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [
     filteredAndSortedSubjects,
     selectedIndex,
@@ -275,14 +361,14 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     handleEdit,
     hideCompleted,
     isDialogOpen,
-    updateSubject
+    updateSubject,
   ]); // Remove readOnly from dependencies
 
   // Focus the contentEditable div when entering edit mode
   useEffect(() => {
     if (editingId !== null && contentEditableRef.current) {
       contentEditableRef.current.focus();
-      
+
       // Place cursor at the end of the content
       const range = document.createRange();
       const selection = window.getSelection();
@@ -294,13 +380,19 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
   }, [editingId]);
 
   const handleSaveEdit = (id: number) => {
-    const processedContent = editForm.content.replace(/(<[^>]+>|data:image\/[^;]+;base64,[^"]+)/g, '');
-    
+    const processedContent = editForm.content.replace(
+      /(<[^>]+>|data:image\/[^;]+;base64,[^"]+)/g,
+      ""
+    );
+
     // Update the UI state
     updateSubject(id, {
       content: editForm.content,
       textContent: processedContent,
-      tags: editForm.tags.split(',').map(tag => tag.trim().toLowerCase()).filter(Boolean)
+      tags: editForm.tags
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase())
+        .filter(Boolean),
     });
 
     // Reset edit state
@@ -309,20 +401,26 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
 
   const handleTagInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
+
     // Don't update if empty
     if (!value.trim()) return;
 
     // Add tag when user presses Enter
-    if (value.endsWith(',')) {
+    if (value.endsWith(",")) {
       const newTag = value.slice(0, -1).trim().toLowerCase();
-      if (newTag && !editForm.tags.split(',').map(t => t.trim()).includes(newTag)) {
-        setEditForm(prev => ({
+      if (
+        newTag &&
+        !editForm.tags
+          .split(",")
+          .map((t) => t.trim())
+          .includes(newTag)
+      ) {
+        setEditForm((prev) => ({
           ...prev,
-          tags: prev.tags ? `${prev.tags}, ${newTag}` : newTag
+          tags: prev.tags ? `${prev.tags}, ${newTag}` : newTag,
         }));
       }
-      e.target.value = '';
+      e.target.value = "";
       setShowTagSuggestions(false);
       setSelectedSuggestionIndex(-1);
       return;
@@ -333,10 +431,10 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     setCursorPosition(cursorPos);
 
     // Find the current tag being typed
-    const tagList = value.split(',');
+    const tagList = value.split(",");
     let currentPos = 0;
     let currentTagIndex = 0;
-    
+
     for (let i = 0; i < tagList.length; i++) {
       const tagLength = tagList[i].length;
       currentPos += tagLength + 1; // +1 for comma
@@ -346,18 +444,20 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
       }
     }
 
-    const currentTag = tagList[currentTagIndex]?.trim().toLowerCase() || '';
-    
+    const currentTag = tagList[currentTagIndex]?.trim().toLowerCase() || "";
+
     if (currentTag) {
       // Filter existing tags that match current input
-      const suggestions = getAllTags()
-        .filter(tag => {
-          const normalizedTag = tag.toLowerCase();
-          const existingTags = tagList
-            .map(t => t.trim().toLowerCase())
-            .filter(t => t !== currentTag); // Don't exclude current tag being typed
-          return normalizedTag.includes(currentTag) && !existingTags.includes(normalizedTag);
-        });
+      const suggestions = getAllTags().filter((tag) => {
+        const normalizedTag = tag.toLowerCase();
+        const existingTags = tagList
+          .map((t) => t.trim().toLowerCase())
+          .filter((t) => t !== currentTag); // Don't exclude current tag being typed
+        return (
+          normalizedTag.includes(currentTag) &&
+          !existingTags.includes(normalizedTag)
+        );
+      });
       setTagSuggestions(suggestions);
       setShowTagSuggestions(suggestions.length > 0);
     } else {
@@ -367,33 +467,43 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
 
   const handleAddTag = () => {
     if (!tagInputRef.current?.value.trim()) return;
-    
+
     const newTag = tagInputRef.current.value.trim().toLowerCase();
-    if (!editForm.tags.split(',').map(t => t.trim()).includes(newTag)) {
-      setEditForm(prev => ({
+    if (
+      !editForm.tags
+        .split(",")
+        .map((t) => t.trim())
+        .includes(newTag)
+    ) {
+      setEditForm((prev) => ({
         ...prev,
-        tags: prev.tags ? `${prev.tags}, ${newTag}` : newTag
+        tags: prev.tags ? `${prev.tags}, ${newTag}` : newTag,
       }));
     }
-    tagInputRef.current.value = '';
+    tagInputRef.current.value = "";
     setShowTagSuggestions(false);
     setSelectedSuggestionIndex(-1);
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    const currentTags = editForm.tags.split(',').map(t => t.trim());
-    const updatedTags = currentTags.filter(tag => tag !== tagToRemove);
-    setEditForm(prev => ({
+    const currentTags = editForm.tags.split(",").map((t) => t.trim());
+    const updatedTags = currentTags.filter((tag) => tag !== tagToRemove);
+    setEditForm((prev) => ({
       ...prev,
-      tags: updatedTags.join(', ')
+      tags: updatedTags.join(", "),
     }));
   };
 
   const handleTagSuggestionClick = (suggestion: string) => {
-    if (!editForm.tags.split(',').map(t => t.trim()).includes(suggestion)) {
-      setEditForm(prev => ({
+    if (
+      !editForm.tags
+        .split(",")
+        .map((t) => t.trim())
+        .includes(suggestion)
+    ) {
+      setEditForm((prev) => ({
         ...prev,
-        tags: prev.tags ? `${prev.tags}, ${suggestion}` : suggestion
+        tags: prev.tags ? `${prev.tags}, ${suggestion}` : suggestion,
       }));
     }
     setShowTagSuggestions(false);
@@ -401,9 +511,12 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     setIsAddingTag(false); // Hide input after selection
   };
 
-  const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, subjectId: number) => {
+  const handleTagInputKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    subjectId: number
+  ) => {
     // Handle Escape key to dismiss tag input
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       e.preventDefault();
       setShowTagSuggestions(false);
       setSelectedSuggestionIndex(-1);
@@ -412,7 +525,7 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     }
 
     // Handle Enter key to add new tag regardless of suggestions
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       if (selectedSuggestionIndex >= 0) {
         // If a suggestion is selected, use it
@@ -427,22 +540,22 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     if (!showTagSuggestions) return;
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setSelectedSuggestionIndex(prev => 
+        setSelectedSuggestionIndex((prev) =>
           prev < tagSuggestions.length - 1 ? prev + 1 : prev
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
-        setSelectedSuggestionIndex(prev => prev > -1 ? prev - 1 : -1);
+        setSelectedSuggestionIndex((prev) => (prev > -1 ? prev - 1 : -1));
         break;
     }
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
     // Save on Ctrl+Enter or Cmd+Enter
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       handleSaveEdit(editingId!);
     }
@@ -451,7 +564,7 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
   // Add this new function to handle the click
   const handleCreateClick = useCallback(() => {
     // Find the 'a' key handler in AddSubjectForm and trigger it
-    const event = new KeyboardEvent('keydown', { key: 'a' });
+    const event = new KeyboardEvent("keydown", { key: "a" });
     document.dispatchEvent(event);
   }, []);
 
@@ -468,8 +581,10 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
     const destinationId = filteredAndSortedSubjects[destinationIndex].id;
 
     // Find the actual indices in the full list
-    const fullSourceIndex = subjects.findIndex(s => s.id === sourceId);
-    const fullDestinationIndex = subjects.findIndex(s => s.id === destinationId);
+    const fullSourceIndex = subjects.findIndex((s) => s.id === sourceId);
+    const fullDestinationIndex = subjects.findIndex(
+      (s) => s.id === destinationId
+    );
 
     // Use the full list indices for reordering
     reorderSubjects(fullSourceIndex, fullDestinationIndex);
@@ -484,7 +599,7 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
       deleteSubject(deleteConfirmation.subjectId);
       // Adjust selected index if needed
       if (selectedIndex >= filteredAndSortedSubjects.length - 1) {
-        setSelectedIndex(prev => Math.max(0, prev - 1));
+        setSelectedIndex((prev) => Math.max(0, prev - 1));
       }
     }
     setDeleteConfirmation({ isOpen: false, subjectId: null });
@@ -498,13 +613,17 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
   useEffect(() => {
     if (selectedIndex >= 0 && selectedSubjectRef.current) {
       selectedSubjectRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest'
+        behavior: "smooth",
+        block: "nearest",
       });
     }
   }, [selectedIndex]);
 
-  const setRefs = (el: HTMLDivElement | null, provided: DraggableProvided, index: number) => {
+  const setRefs = (
+    el: HTMLDivElement | null,
+    provided: DraggableProvided,
+    index: number
+  ) => {
     provided.innerRef(el);
     if (index === selectedIndex && el) {
       selectedSubjectRef.current = el;
@@ -518,17 +637,17 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
       // Optionally scroll the first item into view
       if (selectedSubjectRef.current) {
         selectedSubjectRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest'
+          behavior: "smooth",
+          block: "nearest",
         });
       }
     }
   };
 
   useEffect(() => {
-    document.addEventListener('selectFirstSubject', handleSelectFirst);
+    document.addEventListener("selectFirstSubject", handleSelectFirst);
     return () => {
-      document.removeEventListener('selectFirstSubject', handleSelectFirst);
+      document.removeEventListener("selectFirstSubject", handleSelectFirst);
     };
   }, [filteredAndSortedSubjects.length]);
 
@@ -536,10 +655,11 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
   const handleSubjectClick = (index: number, e: React.MouseEvent) => {
     // Don't select when clicking buttons or checkboxes
     const target = e.target as Element;
-    const isButton = target.tagName === 'BUTTON' || 
-                    target.closest('button') || 
-                    target.tagName === 'INPUT';
-    
+    const isButton =
+      target.tagName === "BUTTON" ||
+      target.closest("button") ||
+      target.tagName === "INPUT";
+
     if (!isButton) {
       setSelectedIndex(index);
     }
@@ -549,32 +669,33 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       // Check if click is outside any subject
-      const isOutsideClick = !e.target || !(e.target as Element).closest('.subject-container');
-      
+      const isOutsideClick =
+        !e.target || !(e.target as Element).closest(".subject-container");
+
       // Don't unselect if clicking inside a dialog
       const isDialogClick = (e.target as Element).closest('[role="dialog"]');
-      
+
       if (isOutsideClick && !isDialogClick) {
         setSelectedIndex(-1);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Add this to check if there are any completed subjects
-  const hasCompletedSubjects = useMemo(() => 
-    subjects.some(subject => subject.completed),
+  const hasCompletedSubjects = useMemo(
+    () => subjects.some((subject) => subject.completed),
     [subjects]
   );
 
   const handleSearchChange = useCallback(() => {
-    setSelectedIndex(-1);  // Reset selection when search changes
+    setSelectedIndex(-1); // Reset selection when search changes
   }, []);
 
   const handleTagsChange = useCallback(() => {
-    setSelectedIndex(-1);  // Reset selection when tags change
+    setSelectedIndex(-1); // Reset selection when tags change
   }, []);
 
   // Add this useEffect to watch for search and tag changes
@@ -594,21 +715,24 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Element;
-      if (!target.closest('.tag-suggestions') && !target.closest('.tag-input')) {
+      if (
+        !target.closest(".tag-suggestions") &&
+        !target.closest(".tag-input")
+      ) {
         setShowTagSuggestions(false);
         setSelectedSuggestionIndex(-1);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Add this new handler
   const handleTogglePin = (id: number, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent subject selection when clicking pin
-    updateSubject(id, { 
-      isPinned: !subjects.find(s => s.id === id)?.isPinned 
+    updateSubject(id, {
+      isPinned: !subjects.find((s) => s.id === id)?.isPinned,
     });
   };
 
@@ -620,9 +744,11 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
   const handleRemindConfirm = (date: Date) => {
     if (remindDialog.subjectId) {
       // Adjust the date to local timezone and get only the date part
-      const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-      updateSubject(remindDialog.subjectId, { 
-        reminderDate: localDate.toISOString().split('T')[0]
+      const localDate = new Date(
+        date.getTime() - date.getTimezoneOffset() * 60000
+      );
+      updateSubject(remindDialog.subjectId, {
+        reminderDate: localDate.toISOString().split("T")[0],
       });
     }
     setRemindDialog({ isOpen: false, subjectId: null });
@@ -634,20 +760,20 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
 
   const handleRemoveReminder = (id: number, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent subject selection when clicking delete
-    
+
     // Get the minimum order value to place this subject at the top
-    const minOrder = Math.min(...subjects.map(s => s.order)) - 1000;
-    
-    updateSubject(id, { 
+    const minOrder = Math.min(...subjects.map((s) => s.order)) - 1000;
+
+    updateSubject(id, {
       reminderDate: undefined,
-      order: minOrder // Set the order to keep it at the top
+      order: minOrder, // Set the order to keep it at the top
     });
   };
 
   // Add new handler for sending subject to bottom
   const handleSendToBottom = (id: number) => {
     // Get the maximum order value and add 1000 to ensure it goes to the bottom
-    const maxOrder = Math.max(...subjects.map(s => s.order)) + 1000;
+    const maxOrder = Math.max(...subjects.map((s) => s.order)) + 1000;
     updateSubject(id, { order: maxOrder });
   };
 
@@ -713,11 +839,24 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                         {...provided.draggableProps}
                         className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow 
                           hover:shadow-md transition-shadow subject-container
-                          ${snapshot.isDragging ? 'shadow-xl' : ''} 
-                          ${index === selectedIndex ? 'ring-2 ring-blue-500' : ''}
-                          ${subject.reminderDate && subject.reminderDate <= new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0] 
-                            ? 'border-2 border-red-500 dark:border-red-500' 
-                            : ''}`}
+                          ${snapshot.isDragging ? "shadow-xl" : ""} 
+                          ${
+                            index === selectedIndex
+                              ? "ring-2 ring-blue-500"
+                              : ""
+                          }
+                          ${
+                            subject.reminderDate &&
+                            subject.reminderDate <=
+                              new Date(
+                                new Date().getTime() -
+                                  new Date().getTimezoneOffset() * 60000
+                              )
+                                .toISOString()
+                                .split("T")[0]
+                              ? "border-2 border-red-500 dark:border-red-500"
+                              : ""
+                          }`}
                         onClick={(e) => handleSubjectClick(index, e)}
                       >
                         <div className="flex items-start gap-4">
@@ -725,11 +864,15 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                             <button
                               onClick={(e) => handleTogglePin(subject.id, e)}
                               className={`p-1 -mb-1 transition-colors ${
-                                subject.isPinned 
-                                  ? 'text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500'
-                                  : 'text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400'
+                                subject.isPinned
+                                  ? "text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500"
+                                  : "text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400"
                               }`}
-                              title={subject.isPinned ? "Unpin subject" : "Pin subject"}
+                              title={
+                                subject.isPinned
+                                  ? "Unpin subject"
+                                  : "Pin subject"
+                              }
                             >
                               <PinIcon filled={subject.isPinned} />
                             </button>
@@ -768,14 +911,20 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                               <div>
                                 <RichTextEditor
                                   content={editForm.content}
-                                  onChange={(newContent) => setEditForm(prev => ({ ...prev, content: newContent }))}
+                                  onChange={(newContent) =>
+                                    setEditForm((prev) => ({
+                                      ...prev,
+                                      content: newContent,
+                                    }))
+                                  }
                                   onKeyDown={handleKeyDown}
                                 />
                                 <div className="relative mt-4">
                                   <div className="flex flex-wrap gap-2 mb-2">
-                                    {editForm.tags.split(',')
-                                      .map(tag => tag.trim())
-                                      .filter(tag => tag !== '')
+                                    {editForm.tags
+                                      .split(",")
+                                      .map((tag) => tag.trim())
+                                      .filter((tag) => tag !== "")
                                       .map((tag, index) => (
                                         <div
                                           key={index}
@@ -797,13 +946,17 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                           ref={tagInputRef}
                                           type="text"
                                           onChange={handleTagInput}
-                                          onKeyDown={(e) => handleTagInputKeyDown(e, subject.id)}
+                                          onKeyDown={(e) =>
+                                            handleTagInputKeyDown(e, subject.id)
+                                          }
                                           placeholder="Add a tag"
                                           autoFocus
                                           className="tag-input w-32 px-2 py-1 text-sm rounded-lg border border-gray-200 
                                                            dark:border-gray-700 dark:bg-gray-800 focus:ring-2 focus:ring-blue-500"
                                           onBlur={() => {
-                                            if (!tagInputRef.current?.value.trim()) {
+                                            if (
+                                              !tagInputRef.current?.value.trim()
+                                            ) {
                                               setIsAddingTag(false);
                                             }
                                           }}
@@ -818,28 +971,48 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                         aria-label="Add tag"
                                       >
                                         <PlusIcon className="w-4 h-4" />
-                                        {!editForm.tags.split(',').filter(tag => tag.trim() !== '').length && (
-                                          <span className="text-sm">Add tag</span>
+                                        {!editForm.tags
+                                          .split(",")
+                                          .filter((tag) => tag.trim() !== "")
+                                          .length && (
+                                          <span className="text-sm">
+                                            Add tag
+                                          </span>
                                         )}
                                       </button>
                                     )}
                                   </div>
                                   {showTagSuggestions && isAddingTag && (
-                                    <div className="tag-suggestions absolute z-10 w-64 mt-1 bg-white dark:bg-gray-800 
-                                                           rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-                                      {tagSuggestions.map((suggestion, index) => (
-                                        <button
-                                          key={`${suggestion}-${index}`}
-                                          type="button"
-                                          onClick={() => handleTagSuggestionClick(suggestion)}
-                                          className={`w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-sm
+                                    <div
+                                      className="tag-suggestions absolute z-10 w-64 mt-1 bg-white dark:bg-gray-800 
+                                                           rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+                                    >
+                                      {tagSuggestions.map(
+                                        (suggestion, index) => (
+                                          <button
+                                            key={`${suggestion}-${index}`}
+                                            type="button"
+                                            onClick={() =>
+                                              handleTagSuggestionClick(
+                                                suggestion
+                                              )
+                                            }
+                                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-sm
                                                            first:rounded-t-lg last:rounded-b-lg
-                                                           ${index === selectedSuggestionIndex ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
-                                          onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                                        >
-                                          {suggestion}
-                                        </button>
-                                      ))}
+                                                           ${
+                                                             index ===
+                                                             selectedSuggestionIndex
+                                                               ? "bg-gray-100 dark:bg-gray-700"
+                                                               : ""
+                                                           }`}
+                                            onMouseEnter={() =>
+                                              setSelectedSuggestionIndex(index)
+                                            }
+                                          >
+                                            {suggestion}
+                                          </button>
+                                        )
+                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -861,22 +1034,28 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                             ) : (
                               // View mode
                               <>
-                                <div 
+                                <div
                                   className={`prose dark:prose-invert max-w-none ${
-                                    subject.completed ? 'line-through text-gray-400 dark:text-gray-500' : ''
+                                    subject.completed
+                                      ? "line-through text-gray-400 dark:text-gray-500"
+                                      : ""
                                   }`}
-                                  dangerouslySetInnerHTML={{ __html: getHighlightedContent.get(subject.id) || subject.content }}
+                                  dangerouslySetInnerHTML={{
+                                    __html:
+                                      getHighlightedContent.get(subject.id) ||
+                                      subject.content,
+                                  }}
                                 />
                                 <div className="flex flex-wrap gap-2 mt-4 mb-4">
                                   {subject.tags
-                                    .filter(tag => tag.trim() !== '')
+                                    .filter((tag) => tag.trim() !== "")
                                     .map((tag, index) => (
                                       <span
                                         key={index}
                                         className={`px-2 py-1 rounded-full text-sm ${
-                                          subject.completed 
-                                            ? 'bg-gray-100 dark:bg-gray-700 text-gray-400'
-                                            : 'bg-gray-100 dark:bg-gray-700'
+                                          subject.completed
+                                            ? "bg-gray-100 dark:bg-gray-700 text-gray-400"
+                                            : "bg-gray-100 dark:bg-gray-700"
                                         }`}
                                       >
                                         {tag}
@@ -892,7 +1071,9 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                       Edit
                                     </button>
                                     <button
-                                      onClick={() => handleDeleteClick(subject.id)}
+                                      onClick={() =>
+                                        handleDeleteClick(subject.id)
+                                      }
                                       className="px-3 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
                                     >
                                       Delete
@@ -902,14 +1083,26 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                       <div className="flex items-center gap-2">
                                         <span className="text-sm text-gray-500 dark:text-gray-400">
                                           {(() => {
-                                            const today = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-                                            const reminderDate = new Date(subject.reminderDate + 'T00:00:00');
+                                            const today = new Date(
+                                              new Date().getTime() -
+                                                new Date().getTimezoneOffset() *
+                                                  60000
+                                            )
+                                              .toISOString()
+                                              .split("T")[0];
+                                            const reminderDate = new Date(
+                                              subject.reminderDate + "T00:00:00"
+                                            );
                                             const currentDate = new Date();
                                             currentDate.setHours(0, 0, 0, 0);
 
-                                            if (subject.reminderDate === today) {
+                                            if (
+                                              subject.reminderDate === today
+                                            ) {
                                               return `For your attention ${reminderDate.toLocaleDateString()}`;
-                                            } else if (reminderDate < currentDate) {
+                                            } else if (
+                                              reminderDate < currentDate
+                                            ) {
                                               return `Brought to attention on ${reminderDate.toLocaleDateString()}`;
                                             } else {
                                               return `Will bring to your attention on ${reminderDate.toLocaleDateString()}`;
@@ -917,7 +1110,9 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                           })()}
                                         </span>
                                         <button
-                                          onClick={(e) => handleRemoveReminder(subject.id, e)}
+                                          onClick={(e) =>
+                                            handleRemoveReminder(subject.id, e)
+                                          }
                                           className="p-1 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
                                           title="Remove reminder"
                                         >
@@ -926,17 +1121,22 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
                                       </div>
                                     ) : (
                                       <button
-                                        onClick={() => handleRemindClick(subject.id)}
+                                        onClick={() =>
+                                          handleRemindClick(subject.id)
+                                        }
                                         className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline"
                                       >
                                         Remind me
                                       </button>
                                     )}
-                                    {index !== filteredAndSortedSubjects.length - 1 && (
+                                    {index !==
+                                      filteredAndSortedSubjects.length - 1 && (
                                       <>
                                         <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
                                         <button
-                                          onClick={() => handleSendToBottom(subject.id)}
+                                          onClick={() =>
+                                            handleSendToBottom(subject.id)
+                                          }
                                           className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline"
                                         >
                                           Send to bottom
@@ -971,4 +1171,4 @@ export default function SubjectList({ readOnly, preventSync }: SubjectListProps)
       />
     </div>
   );
-} 
+}
