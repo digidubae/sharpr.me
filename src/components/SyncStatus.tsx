@@ -162,10 +162,6 @@ export default function SyncStatus() {
       // Fire and forget snapshot creation
       createSnapshot();
 
-      // cache the space data in localStorage
-      console.log(`caching space data in localStorage...`)
-      localStorage.setItem(`space-cache-${id}`, JSON.stringify(dataToSave));
-
     } catch (error) {
       console.error('Space sync error:', error);
       setSyncState('error');
