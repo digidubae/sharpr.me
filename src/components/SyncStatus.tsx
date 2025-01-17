@@ -43,6 +43,7 @@ export default function SyncStatus() {
   }, [isSyncing]);
 
   useEffect(() => {
+    console.log('SyncStatus useEffect');
     // Skip saving on initial mount
     if (isInitialMount.current) {
       // Set initial data reference
@@ -64,13 +65,16 @@ export default function SyncStatus() {
 
       // If this exact data was just saved, skip
       if (currentData === lastSavedDataRef.current) {
+        console.log('SyncStatus useEffect - skipping save - data unchanged');
         return;
       }
+
+      console.log('SyncStatus useEffect - saving data');
 
       saveData(currentData);
     };
 
-    const debouncedSave = setTimeout(initiateSync, 100);
+    const debouncedSave = setTimeout(initiateSync, 1000);
     
     return () => {
       isStale = true;
