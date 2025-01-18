@@ -29,7 +29,7 @@ export async function fetchWithAuth(url: string, options: FetchOptions = {}) {
         },
       });
 
-      console.log(`fetchWithAuth: ${url} response: ${response.status}`);
+      console.log(`fetchWithAuth: ${url} response: ${response.status}`, options);
 
       if (response.status === 401 && requireAuth) {
         // Try to refresh the session

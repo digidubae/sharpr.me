@@ -17,6 +17,8 @@ export function useSpaces() {
     queryKey: [SPACES_QUERY_KEY],
     queryFn: async () => {
       try {
+        console.log(`TOK: 3`)
+
         const response = await fetchWithAuth('/api/library');
         const data = await response.json();
         
@@ -63,6 +65,7 @@ export function useSpaces() {
     const newData = await queryClient.fetchQuery({
       queryKey: [SPACES_QUERY_KEY],
       queryFn: async () => {
+        console.log(`TOK: 4`)
         const response = await fetchWithAuth('/api/library');
         const data = await response.json();
         if (!response.ok) {

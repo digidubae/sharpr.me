@@ -19,7 +19,7 @@ export default function DeleteSpaceDialog({ isOpen, onClose, onConfirm, spaceCou
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await invalidateSpaces();
+      // await invalidateSpaces();
       await onConfirm();
       onClose();
     } catch (error) {

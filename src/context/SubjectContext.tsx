@@ -53,6 +53,7 @@ export function SubjectProvider({
     const checkLibraryStatus = async () => {
       if (!isExample && session?.user && id && !isLocked) {
         try {
+          console.log(`TOK: 1`)
           const response = await fetchWithAuth("/api/library", {
             signal: abortController.signal,
           });

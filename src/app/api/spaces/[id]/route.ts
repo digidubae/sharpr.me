@@ -1,7 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { getStorageProvider } from '@/utils/storage';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -13,15 +11,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     const storageProvider = await getStorageProvider();
-    
     // Get all snapshots for this space
-    const snapshots = await storageProvider.listSnapshots(id);
-    
+    // const snapshots = await storageProvider.listSnapshots(id);
+    // console.log(`TOK: delete snapshots for ${id}`)
     // Delete all snapshots
-    await storageProvider.deleteAllSnapshots(id);
-    
+    // console.log(`TOK: delete space for ${id}`)
     // Delete the space
     await storageProvider.deleteSpace(id);
+    storageProvider.deleteAllSnapshots(id); // no await because we don't need to wait for this to complete
 
     return NextResponse.json({ success: true });
   } catch (error) {

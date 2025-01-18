@@ -95,6 +95,8 @@ export default function SwitchSpaceDialog({ isOpen, onClose }: SwitchSpaceDialog
                         e.preventDefault();
                         e.stopPropagation();
                         try {
+                          console.log(`TOK: 2`)
+
                           const response = await fetchWithAuth('/api/library', {
                             method: 'DELETE',
                             headers: { 'Content-Type': 'application/json' },
