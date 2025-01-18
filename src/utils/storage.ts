@@ -1,7 +1,15 @@
-import { ImportedData, LibrarySpace, Subject, Category, StorageProvider, SpaceData, LibraryItem } from '@/types';
-import { GoogleDriveService } from './googleDrive';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth';
+import { ImportedData, LibraryItem, SpaceData, StorageProvider } from '@/types';
+import Cache from 'file-system-cache';
+import { getServerSession } from 'next-auth';
+import { GoogleDriveService } from './googleDrive';
+
+const cache = Cache({
+  basePath: "./.cache", 
+  ns: "sharpr-me",   
+  hash: "sha1",       
+  ttl: 60,             
+});
 
 // Extend the Session type to include accessToken
 declare module 'next-auth' {
@@ -61,6 +69,10 @@ export class DriveStorageProvider implements StorageProvider {
   async getSpace(id: string): Promise<SpaceData | null> {
     try {
       // console.log(`Getting space: ${id}`);
+      const cachedData = await cache.get(`space_${id}`);
+      if (cachedData) {
+        return cachedData;
+      }
       const data = await this.getFile(`space_${id}.json`);
       // console.log(`Space data retrieved:`, data);
       return data;
@@ -72,13 +84,10 @@ export class DriveStorageProvider implements StorageProvider {
 
   async saveSpace(id: string, data: Partial<SpaceData>): Promise<void> {
     try {
-      // console.log(`Saving space: ${id}`);
       const existingData = await this.getSpace(id);
-      // console.log(`Existing data:`, existingData);
       const newData = { ...existingData, ...data, id };
-      // console.log(`New data to save:`, newData);
       await this.saveFile(`space_${id}.json`, newData);
-      // console.log(`Space saved successfully: ${id}`);
+      await cache.set(`space_${id}`, newData)
     } catch (error) {
       console.error(`Error saving space ${id}:`, error);
       throw error;
