@@ -2,7 +2,7 @@
 
 inventory.ini
 /public/tinymce/
-
+/.cache/
 # dependencies
 /node_modules
 /.pnp

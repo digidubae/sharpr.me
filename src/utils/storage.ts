@@ -28,6 +28,11 @@ declare module 'next-auth' {
 export class DriveStorageProvider implements StorageProvider {
   constructor(private driveService: GoogleDriveService) {}
 
+  async getUserEmail(): Promise<string | undefined> { 
+      const session = await getServerSession(authOptions);
+      return session?.user?.email || undefined;
+  }
+
   private async saveFile(filename: string, data: any): Promise<string> {
     try {
       return await this.driveService.saveData(filename, data);
@@ -69,7 +74,7 @@ export class DriveStorageProvider implements StorageProvider {
   async getSpace(id: string): Promise<SpaceData | null> {
     try {
       // console.log(`Getting space: ${id}`);
-      const cachedData = await cache.get(`space_${id}`);
+      const cachedData = await cache.get(`${this.getUserEmail()}/space_${id}`);
       if (cachedData) {
         return cachedData;
       }
@@ -82,12 +87,14 @@ export class DriveStorageProvider implements StorageProvider {
     }
   }
 
+
+
   async saveSpace(id: string, data: Partial<SpaceData>): Promise<void> {
     try {
       const existingData = await this.getSpace(id);
       const newData = { ...existingData, ...data, id };
       await this.saveFile(`space_${id}.json`, newData);
-      await cache.set(`space_${id}`, newData)
+      await cache.set(`${this.getUserEmail()}/space_${id}`, newData)
     } catch (error) {
       console.error(`Error saving space ${id}:`, error);
       throw error;
