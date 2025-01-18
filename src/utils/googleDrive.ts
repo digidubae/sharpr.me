@@ -3,6 +3,9 @@ import type { drive_v3 } from 'googleapis';
 import { GaxiosError } from 'gaxios';
 import { EventEmitter } from 'events';
 
+// Set max listeners to 20 to prevent warning
+EventEmitter.defaultMaxListeners = 20;
+
 export class GoogleDriveService {
   private static FOLDER_NAME = 'Sharpr.me Data';
   private static MIME_TYPE = 'application/json';
