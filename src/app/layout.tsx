@@ -3,10 +3,10 @@ import { Inter } from "next/font/google";
 import { SessionProvider } from "@/components/SessionProvider";
 import { DialogProvider } from "@/context/DialogContext";
 import { ThemeProvider } from "next-themes";
-import Footer from "@/components/Footer";
 import { Providers } from "@/components/Providers";
 import { ToastProvider } from "@/components/ToastProvider";
 import { Analytics } from "@vercel/analytics/react";
+import LayoutClient from "./layout-client";
 
 const font = Inter({ subsets: ["latin"]});
 
@@ -28,11 +28,12 @@ export default function RootLayout({
             <DialogProvider>
               <Providers>
                 <ToastProvider>
-                  {children}
+                  <LayoutClient>
+                    {children}
+                  </LayoutClient>
                 </ToastProvider>
               </Providers>
             </DialogProvider>
-            <Footer />
           </SessionProvider>
         </ThemeProvider>
         <Analytics />
