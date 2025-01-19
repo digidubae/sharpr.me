@@ -89,10 +89,10 @@ export class DriveStorageProvider implements StorageProvider {
     try {
       // console.log(`Getting space: ${id}`);
       const cachedData = await this.getCache(id);
-      if (cachedData) {
-        console.log(`cache hit for space ${id}`)
-        return cachedData;
-      }
+      // if (cachedData) {
+      //   console.log(`cache hit for space ${id}`)
+      //   return cachedData;
+      // }
       console.log(`cache miss for space ${id}`)
       const data = await this.getFile(`space_${id}.json`);
       // console.log(`Space data retrieved:`, data);
@@ -105,27 +105,27 @@ export class DriveStorageProvider implements StorageProvider {
 
   private async saveCache(id: string, data: Partial<SpaceData>) {
     return
-    if (!this.cache) {
-      await this.setupCache();
-    }
-    if (this.cache) {
-      await this.cache.set(`space_${id}`, data)
-    } else {
-      console.log('Could not save cache.  Cache not initialized');
-    }
+    // if (!this.cache) {
+    //   await this.setupCache();
+    // }
+    // if (this.cache) {
+    //   await this.cache.set(`space_${id}`, data)
+    // } else {
+    //   console.log('Could not save cache.  Cache not initialized');
+    // }
   }
 
   async getCache(id: string) {
     return
-    if (!this.cache) {
-      await this.setupCache();
-    }
-    if (this.cache) {
-      return await this.cache?.get(`space_${id}`);
-    } else {
-      console.log('Could not get cache.  Cache not initialized');
-      return null;
-    }
+    // if (!this.cache) {
+    //   await this.setupCache();
+    // }
+    // if (this.cache) {
+    //   return await this.cache?.get(`space_${id}`);
+    // } else {
+    //   console.log('Could not get cache.  Cache not initialized');
+    //   return null;
+    // }
   }
 
   async removeCache(id: string) {
