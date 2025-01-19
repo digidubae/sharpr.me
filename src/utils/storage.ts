@@ -104,6 +104,7 @@ export class DriveStorageProvider implements StorageProvider {
   }
 
   private async saveCache(id: string, data: Partial<SpaceData>) {
+    return
     if (!this.cache) {
       await this.setupCache();
     }
@@ -115,6 +116,7 @@ export class DriveStorageProvider implements StorageProvider {
   }
 
   async getCache(id: string) {
+    return
     if (!this.cache) {
       await this.setupCache();
     }
@@ -194,7 +196,7 @@ export class DriveStorageProvider implements StorageProvider {
       const files = await this.driveService.listFiles(`snapshot_${spaceId}_*.json`);
       console.log('Found snapshot files:', files);
       const snapshots = files.map(f => `gdrive://${f}`);
-      console.log('Mapped snapshot URLs:', snapshots);
+      // console.log('Mapped snapshot URLs:', snapshots);
       return snapshots;
     } catch (error) {
       console.error('Error in listSnapshots:', error);
