@@ -1,6 +1,5 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth';
 import { ImportedData, LibraryItem, SpaceData, StorageProvider } from '@/types';
-import Cache, { FileSystemCache } from 'file-system-cache';
 import { getServerSession } from 'next-auth';
 import { GoogleDriveService } from './googleDrive';
 
@@ -21,30 +20,10 @@ declare module 'next-auth' {
 
 
 export class DriveStorageProvider implements StorageProvider {
-  private cache: FileSystemCache | undefined
 
   constructor(private driveService: GoogleDriveService) {
   }
 
-  private async setupCache() { 
-    console.log('setting up cache')
-      const session = await getServerSession(authOptions);
-      if (!session?.user?.email) {
-        throw new Error('User email not found');
-      }
-      
-      this.cache = Cache({
-        basePath: `./.cache/${session?.user?.email}`, 
-        ns: "sharpr-me",   
-        hash: "sha1",       
-        ttl: 86400,   // 1 day            
-      });
-      if (this.cache) {
-        console.log('cache setup complete')
-      } else {
-        console.log('cache setup failed')
-      }
-  }
 
   private async saveFile(filename: string, data: any): Promise<string> {
     try {
@@ -87,15 +66,7 @@ export class DriveStorageProvider implements StorageProvider {
 
   async getSpace(id: string): Promise<SpaceData | null> {
     try {
-      // console.log(`Getting space: ${id}`);
-      const cachedData = await this.getCache(id);
-      // if (cachedData) {
-      //   console.log(`cache hit for space ${id}`)
-      //   return cachedData;
-      // }
-      console.log(`cache miss for space ${id}`)
       const data = await this.getFile(`space_${id}.json`);
-      // console.log(`Space data retrieved:`, data);
       return data;
     } catch (error) {
       console.error(`Error getting space ${id}:`, error);
@@ -103,39 +74,7 @@ export class DriveStorageProvider implements StorageProvider {
     }
   }
 
-  private async saveCache(id: string, data: Partial<SpaceData>) {
-    return
-    // if (!this.cache) {
-    //   await this.setupCache();
-    // }
-    // if (this.cache) {
-    //   await this.cache.set(`space_${id}`, data)
-    // } else {
-    //   console.log('Could not save cache.  Cache not initialized');
-    // }
-  }
 
-  async getCache(id: string) {
-    return
-    // if (!this.cache) {
-    //   await this.setupCache();
-    // }
-    // if (this.cache) {
-    //   return await this.cache?.get(`space_${id}`);
-    // } else {
-    //   console.log('Could not get cache.  Cache not initialized');
-    //   return null;
-    // }
-  }
-
-  async removeCache(id: string) {
-    if (!this.cache) {
-      await this.setupCache();
-    }
-    if (this.cache) {
-      await this.cache?.remove(`space_${id}`);
-    }
-  }
 
 
 
@@ -144,7 +83,6 @@ export class DriveStorageProvider implements StorageProvider {
       const existingData = await this.getSpace(id);
       const newData = { ...existingData, ...data, id };
       await this.saveFile(`space_${id}.json`, newData);
-      await this.saveCache(id, newData);
     } catch (error) {
       console.error(`Error saving space ${id}:`, error);
       throw error;
@@ -153,7 +91,6 @@ export class DriveStorageProvider implements StorageProvider {
 
   async deleteSpace(id: string): Promise<void> {
     await this.driveService.deleteData(`space_${id}.json`);
-    await this.removeCache(id);
   }
 
   async listSpaces(): Promise<string[]> {

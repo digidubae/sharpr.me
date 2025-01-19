@@ -1130,7 +1130,16 @@ export default function SubjectList({
                                       </button>
                                     )}
                                     {index !==
-                                      filteredAndSortedSubjects.length - 1 && (
+                                      filteredAndSortedSubjects.length - 1 &&
+                                      !subject.isPinned &&
+                                      (!subject.reminderDate ||
+                                        subject.reminderDate >
+                                          new Date(
+                                            new Date().getTime() -
+                                              new Date().getTimezoneOffset() * 60000
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]) && (
                                       <>
                                         <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
                                         <button
