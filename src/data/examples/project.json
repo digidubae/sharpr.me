@@ -1,0 +1,82 @@
+{
+  "subjects": [
+    {
+      "id": 1734696225692.445,
+      "content": "<p style=\"text-align: center\">🎨 <b>Design Phase</b></p>\n<p><i>Key design deliverables and milestones:</i></p>\n<ul>\n<li><b>UI/UX Design</b> 🖼️\n  <ul>\n    <li>User Flow Mapping</li>\n    <li>Wireframe Creation</li>\n    <li>Design System Setup</li>\n  </ul>\n</li>\n<li>Stakeholder Engagement 👥\n  <ul>\n    <li>Design Reviews</li>\n    <li>Feedback Sessions</li>\n    <li>Iteration Planning</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["design", "planning", "ui/ux"],
+      "createdAt": "2024-11-25T08:07:29.609Z",
+      "completed": false,
+      "images": [],
+      "order": 0
+    },
+    {
+      "id": 1734696225692.6538,
+      "content": "<p style=\"text-align: center\">⚙️ <b>Development Infrastructure</b></p>\n<p><i>Setup status and requirements:</i></p>\n<ul>\n<li><b>Environment Setup</b> 🛠️\n  <ul>\n    <li>Development: Ready ✅</li>\n    <li>Staging: In Progress ⏳</li>\n    <li>Production: Pending 📝</li>\n  </ul>\n</li>\n<li>DevOps Pipeline 🔄\n  <ul>\n    <li>CI/CD Configuration</li>\n    <li>Monitoring Setup</li>\n    <li>Backup Systems</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["setup", "development", "devops"],
+      "createdAt": "2024-11-25T08:05:54.352Z",
+      "completed": false,
+      "images": [],
+      "order": 1000
+    },
+    {
+      "id": 1734696225692.6953,
+      "content": "<p style=\"text-align: center\">🔨 <b>Core Development</b></p>\n<p><i>Feature implementation timeline:</i></p>\n<ol>\n<li><b>Authentication</b> 🔐\n  <ul>\n    <li>Social Login Integration</li>\n    <li>Email Verification</li>\n    <li>Password Recovery</li>\n  </ul>\n</li>\n<li>User Management 👤\n  <ul>\n    <li>Profile Creation</li>\n    <li>Settings Configuration</li>\n  </ul>\n</li>\n<li>Data Handling 📊\n  <ul>\n    <li>Sync Implementation</li>\n    <li>Offline Support</li>\n  </ul>\n</li>\n</ol>",
+      "tags": ["development", "core", "features"],
+      "createdAt": "2024-11-25T07:53:28.531Z",
+      "completed": false,
+      "images": [],
+      "order": 2000
+    },
+    {
+      "id": 1734696225692.5715,
+      "content": "<p style=\"text-align: center\">🧪 <b>Quality Assurance</b></p>\n<p><i>Testing requirements and coverage:</i></p>\n<ul>\n<li><b>Testing Strategy</b> ✅\n  <ul>\n    <li>Unit Testing (90%)</li>\n    <li>Integration Testing (75%)</li>\n    <li>E2E Testing (Key Flows)</li>\n  </ul>\n</li>\n<li>Performance Metrics 📈\n  <ul>\n    <li>Load Testing</li>\n    <li>Stress Testing</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["testing", "qa", "security"],
+      "createdAt": "2024-11-25T07:52:12.708Z",
+      "completed": false,
+      "images": [],
+      "order": 3000
+    },
+    {
+      "id": 1734696225692.9246,
+      "content": "<p style=\"text-align: center\">📱 <b>App Store Optimization</b></p>\n<p><i>Store presence optimization:</i></p>\n<ul>\n<li><b>Store Listing</b> 🎯\n  <ul>\n    <li>Keyword Research</li>\n    <li>Description Writing</li>\n    <li>Visual Assets</li>\n  </ul>\n</li>\n<li>Marketing Materials 📣\n  <ul>\n    <li>Promotional Videos</li>\n    <li>Screenshots Design</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["marketing", "launch", "aso"],
+      "createdAt": "2024-11-25T07:51:14.214Z",
+      "completed": false,
+      "images": [],
+      "order": 4000
+    },
+    {
+      "id": 1734696225692.5664,
+      "content": "<p style=\"text-align: center\">🚀 <b>Launch Preparation</b></p>\n<p><i>Pre-launch checklist and timeline:</i></p>\n<ol>\n<li><b>Final Checks</b> 🔍\n  <ul>\n    <li>Security Audit</li>\n    <li>Performance Testing</li>\n    <li>Beta Feedback Review</li>\n  </ul>\n</li>\n<li>Launch Strategy 📅\n  <ul>\n    <li>Rollout Plan</li>\n    <li>Monitoring Setup</li>\n  </ul>\n</li>\n</ol>",
+      "tags": ["planning", "launch", "release"],
+      "createdAt": "2024-11-25T07:50:14.214Z",
+      "completed": false,
+      "images": [],
+      "order": 5000
+    },
+    {
+      "id": 1734696225692.7777,
+      "content": "<p style=\"text-align: center\">📈 <b>Post-Launch Monitoring</b></p>\n<p><i>Key metrics and analysis:</i></p>\n<ul>\n<li><b>Analytics</b> 📊\n  <ul>\n    <li>User Engagement</li>\n    <li>Performance Metrics</li>\n    <li>Error Tracking</li>\n  </ul>\n</li>\n<li>User Feedback 👥\n  <ul>\n    <li>App Store Reviews</li>\n    <li>Support Tickets</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["monitoring", "analytics", "feedback"],
+      "createdAt": "2024-11-25T07:49:14.214Z",
+      "completed": false,
+      "images": [],
+      "order": 6000
+    }
+  ],
+  "title": "Mobile App Launch 📱",
+  "categories": [
+    {
+      "id": "cat-1734105637656-s48lnh01k",
+      "name": "Development phases",
+      "tags": [
+        "design",
+        "development",
+        "launch",
+        "planning",
+        "release",
+        "testing"
+      ]
+    }
+  ]
+}

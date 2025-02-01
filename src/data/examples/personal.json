@@ -1,0 +1,163 @@
+{
+  "title": "Personal Tasks ✨",
+  "subjects": [
+    {
+      "id": 1732609685725.001,
+      "content": "<p style=\"text-align: center;\">🏥 <b>Health &amp; Wellness</b></p>\n<p><i>Annual checkup planning:</i></p>\n<ul>\n<li><b>Medical Appointments</b> 📋\n<ul>\n<li>Schedule with Dr. Smith</li>\n<li>Blood work requisition</li>\n<li>Morning slot preferred</li>\n</ul>\n</li>\n<li>Health Records 📄\n<ul>\n<li>Update medical history</li>\n<li>Insurance verification</li>\n</ul>\n</li>\n</ul>",
+      "tags": [
+        "appointments",
+        "🔥 urgent"
+      ],
+      "createdAt": "2024-11-25T08:07:29.609Z",
+      "completed": false,
+      "images": [],
+      "order": 1,
+      "textContent": "🏥 Health &amp; Wellness\nAnnual checkup planning:\n\nMedical Appointments 📋\n\nSchedule with Dr. Smith\nBlood work requisition\nMorning slot preferred\n\n\nHealth Records 📄\n\nUpdate medical history\nInsurance verification\n\n\n",
+      "isPinned": true
+    },
+    {
+      "id": 1732609685725.002,
+      "content": "<p style=\"text-align: center;\">🏃&zwj;♂️ <b>Outdoor Activities</b></p>\n<p><i>Weekend hiking preparation:</i></p>\n<ul>\n<li><b>Pre-hike Checklist</b> 🎯\n<ul>\n<li>Weather forecast check ✅</li>\n<li>Trail map downloaded ✅</li>\n<li>Gear preparation ⏳</li>\n</ul>\n</li>\n<li>Trail Details 🌲\n<ul>\n<li>Pine Mountain Loop</li>\n<li>Difficulty: Moderate</li>\n</ul>\n</li>\n</ul>",
+      "tags": [
+        "exercise",
+        "weekend"
+      ],
+      "createdAt": "2024-11-25T08:05:54.352Z",
+      "completed": false,
+      "images": [],
+      "order": 2,
+      "textContent": "🏃&zwj;♂️ Outdoor Activities\nWeekend hiking preparation:\n\nPre-hike Checklist 🎯\n\nWeather forecast check ✅\nTrail map downloaded ✅\nGear preparation ⏳\n\n\nTrail Details 🌲\n\nPine Mountain Loop\nDifficulty: Moderate\n\n\n"
+    },
+    {
+      "id": 1732609685725.004,
+      "content": "<p style=\"text-align: center;\">🏠 <b>Home Organization</b></p>\n<p><i>Garage cleanup progress:</i></p>\n<ul>\n<li><b>Completed Tasks</b> ✅\n<ul>\n<li>Winter equipment sorted</li>\n<li>Workbench cleared</li>\n<li>New shelving installed</li>\n<li>Storage boxes labeled</li>\n</ul>\n</li>\n<li>Next Steps 📦\n<ul>\n<li>Drop off donations</li>\n<li>Organize tools</li>\n</ul>\n</li>\n</ul>",
+      "tags": [
+        "organization",
+        "🔥 urgent"
+      ],
+      "createdAt": "2024-11-25T07:52:12.708Z",
+      "completed": false,
+      "images": [],
+      "order": 3,
+      "textContent": "🏠 Home Organization\nGarage cleanup progress:\n\nCompleted Tasks ✅\n\nWinter equipment sorted\nWorkbench cleared\nNew shelving installed\nStorage boxes labeled\n\n\nNext Steps 📦\n\nDrop off donations\nOrganize tools\n\n\n"
+    },
+    {
+      "id": 1737542342146,
+      "content": "<p>Pay phone bills</p>",
+      "textContent": "Pay phone bills",
+      "tags": [
+        "bills",
+        "🔥 urgent"
+      ],
+      "createdAt": "2025-01-22T10:39:02.146Z",
+      "completed": false,
+      "images": [],
+      "isPinned": false,
+      "order": 4,
+      "reminderDate": "2025-01-22"
+    },
+    {
+      "id": 1732609685725.005,
+      "content": "<p style=\"text-align: center;\">💼 <b>Professional Growth</b></p>\n<p><i>Career development updates:</i></p>\n<ol>\n<li><b>Profile Updates</b> ✨\n<ul>\n<li>Resume refreshed</li>\n<li>LinkedIn optimized</li>\n<li>Portfolio updated</li>\n</ul>\n</li>\n<li>Skill Development 📚\n<ul>\n<li>Online courses</li>\n<li>Certification prep</li>\n</ul>\n</li>\n</ol>",
+      "tags": [
+        "career"
+      ],
+      "createdAt": "2024-11-25T07:51:14.214Z",
+      "completed": false,
+      "images": [],
+      "order": 5,
+      "textContent": "💼 Professional Growth\nCareer development updates:\n\nProfile Updates ✨\n\nResume refreshed\nLinkedIn optimized\nPortfolio updated\n\n\nSkill Development 📚\n\nOnline courses\nCertification prep\n\n\n"
+    },
+    {
+      "id": 1737542116522,
+      "content": "<p>Pay utility bills</p>",
+      "textContent": "Pay utility bills",
+      "tags": [
+        "🔥 urgent",
+        "bills"
+      ],
+      "createdAt": "2025-01-22T10:35:16.522Z",
+      "completed": true,
+      "images": [],
+      "isPinned": false,
+      "order": 6
+    },
+    {
+      "id": 1732609685725.006,
+      "content": "<p style=\"text-align: center;\">🎓 <b>Learning Goals</b></p>\n<p><i>Personal development plan:</i></p>\n<ul>\n<li><b>Language Learning</b> 🗣️\n<ul>\n<li>Daily practice sessions</li>\n<li>Conversation partners</li>\n<li>Language apps</li>\n</ul>\n</li>\n<li>Technical Skills 💻\n<ul>\n<li>Programming courses</li>\n<li>Project practice</li>\n</ul>\n</li>\n</ul>",
+      "tags": [
+        "writing"
+      ],
+      "createdAt": "2024-11-25T07:50:14.214Z",
+      "completed": false,
+      "images": [],
+      "order": 7,
+      "textContent": "🎓 Learning Goals\nPersonal development plan:\n\nLanguage Learning 🗣️\n\nDaily practice sessions\nConversation partners\nLanguage apps\n\n\nTechnical Skills 💻\n\nProgramming courses\nProject practice\n\n\n"
+    },
+    {
+      "id": 1732609685725.007,
+      "content": "<p style=\"text-align: center;\">🏋️ <b>Fitness Journey</b></p>\n<p><i>Weekly workout schedule:</i></p>\n<ul>\n<li><b>Exercise Plan</b> 💪\n<ul>\n<li>Morning cardio</li>\n<li>Strength training</li>\n<li>Yoga sessions</li>\n</ul>\n</li>\n<li>Health Metrics 📊\n<ul>\n<li>Track progress</li>\n<li>Meal planning</li>\n</ul>\n</li>\n</ul>",
+      "tags": [
+        "exercise"
+      ],
+      "createdAt": "2024-11-25T07:49:14.214Z",
+      "completed": false,
+      "images": [],
+      "order": 8,
+      "textContent": "🏋️ Fitness Journey\nWeekly workout schedule:\n\nExercise Plan 💪\n\nMorning cardio\nStrength training\nYoga sessions\n\n\nHealth Metrics 📊\n\nTrack progress\nMeal planning\n\n\n"
+    },
+    {
+      "id": 1732609685725.008,
+      "content": "<p style=\"text-align: center;\">🎨 <b>Creative Projects</b></p>\n<p><i>Personal art and creativity:</i></p>\n<ul>\n<li><b>Digital Art</b> 🖌️\n<ul>\n<li>Daily sketching</li>\n<li>Portfolio pieces</li>\n<li>Online gallery</li>\n</ul>\n</li>\n<li>Writing Projects ✍️\n<ul>\n<li>Blog posts</li>\n<li>Short stories</li>\n</ul>\n</li>\n</ul>",
+      "tags": [
+        "art",
+        "writing"
+      ],
+      "createdAt": "2024-11-25T07:48:14.214Z",
+      "completed": false,
+      "images": [],
+      "order": 9,
+      "textContent": "🎨 Creative Projects\nPersonal art and creativity:\n\nDigital Art 🖌️\n\nDaily sketching\nPortfolio pieces\nOnline gallery\n\n\nWriting Projects ✍️\n\nBlog posts\nShort stories\n\n\n"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-1737538524932-7o5d3rqtz",
+      "name": "Fun 🤩",
+      "tags": [
+        "weekend"
+      ]
+    },
+    {
+      "id": "cat-1737538543504-036rr3qvt",
+      "name": "Health 🩺",
+      "tags": [
+        "exercise",
+        "appointments",
+        "fitness"
+      ]
+    },
+    {
+      "id": "cat-1737538587783-3d2uyr6ld",
+      "name": "Self development 🧘🏽",
+      "tags": [
+        "learning",
+        "art",
+        "career",
+        "professional",
+        "education",
+        "writing",
+        "goals"
+      ]
+    },
+    {
+      "id": "cat-1737538631975-jay28v9lh",
+      "name": "House work 🏠",
+      "tags": [
+        "declutter",
+        "organization",
+        "bills"
+      ]
+    }
+  ]
+}

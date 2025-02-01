@@ -1,0 +1,72 @@
+{
+  "subjects": [
+    {
+      "id": 1734696178910.7786,
+      "content": "<p style=\"text-align: center\">🤖 <b>Machine Learning Fundamentals</b></p>\n<p><i>Essential concepts you need to master:</i></p>\n<ul>\n<li>Supervised Learning vs Unsupervised Learning</li>\n<li><b>Training Process</b>:\n  <ul>\n    <li>Data Preparation 📊</li>\n    <li>Model Selection 🎯</li>\n    <li>Validation Techniques ✅</li>\n  </ul>\n</li>\n<li><b>Common Algorithms</b>:\n  <ul>\n    <li>Classification 🏷️</li>\n    <li>Regression 📈</li>\n    <li>Clustering 🔄</li>\n  </ul>\n</li>\n</ul>",
+      "tags": [
+        "ml",
+        "fundamentals",
+        "ai"
+      ],
+      "createdAt": "2024-11-25T08:07:29.609Z",
+      "completed": false,
+      "images": [],
+      "order": 0
+    },
+    {
+      "id": 1734696178910.8213,
+      "content": "<p style=\"text-align: center\">🗃️ <b>Advanced SQL Concepts</b></p>\n<p><i>Key topics to focus on:</i></p>\n<ol>\n<li><b>Query Optimization</b>\n  <ul>\n    <li>Index Management 📑</li>\n    <li>Query Planning 🎯</li>\n  </ul>\n</li>\n<li>Advanced Joins\n  <ul>\n    <li>Self Joins</li>\n    <li>Cross Joins</li>\n  </ul>\n</li>\n<li>Aggregation Functions\n  <ul>\n    <li>GROUP BY Operations</li>\n    <li>HAVING Clauses</li>\n  </ul>\n</li>\n</ol>",
+      "tags": [
+        "database",
+        "sql",
+        "advanced"
+      ],
+      "createdAt": "2024-11-25T07:53:28.531Z",
+      "completed": false,
+      "images": [],
+      "order": 2000
+    },
+    {
+      "id": 1734696178910.114,
+      "content": "<p style=\"text-align: center\">🏗️ <b>System Design Principles</b></p>\n<p><i>Core architectural concepts:</i></p>\n<ul>\n<li><b>Scalability</b> Patterns 📈\n  <ul>\n    <li>Horizontal Scaling</li>\n    <li>Vertical Scaling</li>\n  </ul>\n</li>\n<li>High Availability ⚡\n  <ul>\n    <li>Redundancy</li>\n    <li>Failover Strategies</li>\n  </ul>\n</li>\n<li><b>Data Management</b> 💾\n  <ul>\n    <li>Sharding</li>\n    <li>Replication</li>\n  </ul>\n</li>\n</ul>",
+      "tags": [
+        "architecture",
+        "design",
+        "scalability"
+      ],
+      "createdAt": "2024-11-25T07:52:12.708Z",
+      "completed": false,
+      "images": [],
+      "order": 3000
+    },
+    {
+      "id": 1734696178910.115,
+      "content": "<p style=\"text-align: center\">🔐 <b>Cybersecurity Essentials</b></p>\n<p><i>Security fundamentals every developer should know:</i></p>\n<ul>\n<li><b>Authentication</b> 🔑\n  <ul>\n    <li>Multi-factor Authentication</li>\n    <li>OAuth & JWT</li>\n  </ul>\n</li>\n<li>Common Attacks ⚔️\n  <ul>\n    <li>XSS Prevention</li>\n    <li>SQL Injection Defense</li>\n  </ul>\n</li>\n<li>Security Best Practices 🛡️\n  <ul>\n    <li>HTTPS Implementation</li>\n    <li>Input Validation</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["security", "web", "authentication"],
+      "createdAt": "2024-11-25T07:52:12.708Z",
+      "completed": false,
+      "images": [],
+      "order": 4000
+    },
+    {
+      "id": 1734696178910.116,
+      "content": "<p style=\"text-align: center\">⚛️ <b>React Performance Optimization</b></p>\n<p><i>Techniques for faster React applications:</i></p>\n<ul>\n<li><b>Component Optimization</b> 🚀\n  <ul>\n    <li>useMemo Usage</li>\n    <li>useCallback Implementation</li>\n  </ul>\n</li>\n<li>State Management 📊\n  <ul>\n    <li>Context vs Redux</li>\n    <li>State Splitting</li>\n  </ul>\n</li>\n<li>Rendering ⚡\n  <ul>\n    <li>Virtual DOM</li>\n    <li>Code Splitting</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["react", "performance", "frontend"],
+      "createdAt": "2024-11-25T07:52:12.708Z",
+      "completed": false,
+      "images": [],
+      "order": 5000
+    },
+    {
+      "id": 1734696178910.117,
+      "content": "<p style=\"text-align: center\">🧪 <b>Testing Best Practices</b></p>\n<p><i>Comprehensive testing strategies:</i></p>\n<ul>\n<li><b>Testing Types</b> 🔍\n  <ul>\n    <li>Unit Testing</li>\n    <li>Integration Testing</li>\n  </ul>\n</li>\n<li>Testing Tools 🔄\n  <ul>\n    <li>Jest Framework</li>\n    <li>Cypress</li>\n  </ul>\n</li>\n<li>Best Practices 🎯\n  <ul>\n    <li>Test Coverage</li>\n    <li>Continuous Integration</li>\n  </ul>\n</li>\n</ul>",
+      "tags": ["testing", "quality", "automation"],
+      "createdAt": "2024-11-25T07:52:12.708Z",
+      "completed": false,
+      "images": [],
+      "order": 6000
+    }
+  ],
+  "title": "Study Notes 📚",
+  "categories": []
+}

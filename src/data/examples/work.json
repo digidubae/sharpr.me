@@ -1,0 +1,85 @@
+{
+    "title": "Work Projects 💼",
+    "subjects": [
+      {
+        "id": 1732609685725.143,
+        "content": "<p style=\"text-align: center\">🔧 <b>Infrastructure Upgrade</b></p>\n<p><i>Server Room B Enhancement Project:</i></p>\n<ul>\n<li><b>Budget Planning</b> 💰\n  <ul>\n    <li>Equipment Quotes</li>\n    <li>Vendor Selection</li>\n    <li>Cost Analysis</li>\n  </ul>\n</li>\n<li>Implementation Steps 📋\n  <ul>\n    <li>Technical Review</li>\n    <li>Resource Allocation</li>\n    <li>Timeline Planning</li>\n  </ul>\n</li>\n</ul>",
+        "tags": [
+          "infrastructure",
+          "budget",
+          "priority"
+        ],
+        "createdAt": "2024-11-25T08:07:29.609Z",
+        "completed": false,
+        "images": [],
+        "order": 0
+      },
+      {
+        "id": 1732609685725.0798,
+        "content": "<p style=\"text-align: center\">🏢 <b>Datacenter Assessment</b></p>\n<p><i>System health and performance review:</i></p>\n<ul>\n<li><b>Network Status</b> 🌐\n  <ul>\n    <li>Primary Connection ✅</li>\n    <li>Backup Systems ⏳</li>\n    <li>Redundancy Check</li>\n  </ul>\n</li>\n<li>Documentation 📝\n  <ul>\n    <li>System Architecture</li>\n    <li>Network Topology</li>\n    <li>Emergency Procedures</li>\n  </ul>\n</li>\n</ul>",
+        "tags": [
+          "datacenter",
+          "connectivity",
+          "review"
+        ],
+        "createdAt": "2024-11-25T08:05:54.352Z",
+        "completed": false,
+        "images": [],
+        "order": 1000
+      },
+      {
+        "id": 1732609685725.2966,
+        "content": "<p style=\"text-align: center\">📊 <b>Strategic Planning</b></p>\n<p><i>Project proposals and resource planning:</i></p>\n<ol>\n<li><b>Financial Planning</b> 💰\n  <ul>\n    <li>Budget Forecasting</li>\n    <li>Cost Analysis</li>\n    <li>ROI Calculations</li>\n  </ul>\n</li>\n<li>Resource Management 📈\n  <ul>\n    <li>Team Allocation</li>\n    <li>Equipment Planning</li>\n  </ul>\n</li>\n</ol>",
+        "tags": [
+          "planning",
+          "budget",
+          "strategy"
+        ],
+        "createdAt": "2024-11-25T05:53:28.531Z",
+        "completed": false,
+        "images": [],
+        "order": 2000
+      },
+      {
+        "id": 1732609685725.3967,
+        "content": "<p style=\"text-align: center\">🔒 <b>Security Audit</b></p>\n<p><i>Annual security assessment and updates:</i></p>\n<ul>\n<li><b>Security Review</b> 🛡️\n  <ul>\n    <li>Access Controls</li>\n    <li>Network Security</li>\n    <li>Data Protection</li>\n  </ul>\n</li>\n<li>Compliance Check ✅\n  <ul>\n    <li>Policy Review</li>\n    <li>Regulatory Requirements</li>\n  </ul>\n</li>\n</ul>",
+        "tags": [
+          "security",
+          "compliance",
+          "audit"
+        ],
+        "createdAt": "2024-11-25T05:52:28.531Z",
+        "completed": false,
+        "images": [],
+        "order": 3000
+      },
+      {
+        "id": 1732609685725.4968,
+        "content": "<p style=\"text-align: center\">🔄 <b>System Migration</b></p>\n<p><i>Legacy system upgrade project:</i></p>\n<ul>\n<li><b>Migration Planning</b> 📋\n  <ul>\n    <li>Data Inventory</li>\n    <li>System Dependencies</li>\n    <li>Timeline Creation</li>\n  </ul>\n</li>\n<li>Implementation Steps ⚡\n  <ul>\n    <li>Testing Strategy</li>\n    <li>Rollback Plan</li>\n  </ul>\n</li>\n</ul>",
+        "tags": [
+          "migration",
+          "systems",
+          "upgrade"
+        ],
+        "createdAt": "2024-11-25T05:51:28.531Z",
+        "completed": false,
+        "images": [],
+        "order": 4000
+      },
+      {
+        "id": 1732609685725.8888,
+        "content": "<p style=\"text-align: center\">📱 <b>Mobile Device Management</b></p>\n<p><i>Enterprise mobility implementation:</i></p>\n<ul>\n<li><b>Device Policy</b> 📱\n  <ul>\n    <li>Security Guidelines</li>\n    <li>Access Controls</li>\n    <li>App Management</li>\n  </ul>\n</li>\n<li>Support Structure 🔧\n  <ul>\n    <li>Help Desk Setup</li>\n    <li>User Training</li>\n  </ul>\n</li>\n</ul>",
+        "tags": [
+          "mobile",
+          "management",
+          "security"
+        ],
+        "createdAt": "2024-11-25T05:50:28.531Z",
+        "completed": false,
+        "images": [],
+        "order": 5000
+      }
+    ],
+    "hideCompleted": false,
+    "sortOption": "manual"
+  }
