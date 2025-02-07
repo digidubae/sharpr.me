@@ -5,6 +5,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { useRef, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import imageCompression from "browser-image-compression";
+import { getSignalTriggers, getSignalByTrigger, handleSignal, setupSignalInteractions } from "@/utils/signals";
 
 interface RichTextEditorProps {
   content: string;
@@ -22,7 +23,7 @@ export default function RichTextEditor({
   autoFocus = false,
 }: RichTextEditorProps) {
   const editorRef = useRef<TinyMCEEditor | null>(null);
-  const { resolvedTheme, theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === 'dark';
   const [mounted, setMounted] = useState(false);
 
@@ -99,6 +100,38 @@ export default function RichTextEditor({
           editor.selection.select(editor.getBody(), true);
           editor.selection.collapse(false);
         }
+
+        // Initialize signal interactions
+        setupSignalInteractions(editor);
+
+        // Setup autocompleter for signals
+        editor.ui.registry.addAutocompleter('signals', {
+          trigger: '@',
+          minChars: 0,
+          columns: 1,
+          fetch: (pattern) => {
+            const signals = getSignalTriggers();
+            const matchedSignals = signals.filter(signal => 
+              signal.toLowerCase().includes(pattern.toLowerCase())
+            );
+
+            return Promise.resolve(
+              matchedSignals.map(signal => ({
+                value: signal,
+                text: signal,
+                meta: getSignalByTrigger(signal)?.description || ''
+              }))
+            );
+          },
+          onAction: async (autocompleteApi, rng, value) => {
+            const signal = getSignalByTrigger(value);
+            if (signal) {
+              editor.selection.setRng(rng);
+              await handleSignal(editor, signal);
+            }
+            autocompleteApi.hide();
+          }
+        });
       }}
       value={content}
       onEditorChange={(newContent) => onChange(newContent)}
@@ -146,6 +179,11 @@ export default function RichTextEditor({
           });
         },
         images_upload_handler,
+        // Add custom CSS for signal styling
+        content_style: `
+          .signal-content { position: relative; }
+          .signal-content:hover { background: rgba(74, 144, 226, 0.1); }
+        `,
       }}
     />
   );
