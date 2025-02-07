@@ -1,4 +1,5 @@
 import { Editor as TinyMCEEditor } from 'tinymce';
+import { formatDistanceToNow } from 'date-fns';
 
 export type SignalImplementationType = 'text-input' | 'calendar' | 'static';
 
@@ -50,6 +51,17 @@ const replaceSignalContent = (editor: TinyMCEEditor, signalId: string, content: 
   }
 };
 
+// Helper to format relative time that updates periodically
+const createRelativeTimeElement = (date: Date) => {
+  return `<time 
+    datetime="${date.toISOString()}" 
+    title="${date.toLocaleDateString()}"
+    class="relative-time"
+  >
+    ${formatDistanceToNow(date, { addSuffix: true })}
+  </time>`;
+};
+
 // Signal Handlers
 const textInputHandler: SignalHandler<TextInputSignal> = {
   handleSignal: async (editor, signal, existingSignalId) => {
@@ -81,10 +93,82 @@ const staticHandler: SignalHandler<StaticSignal> = {
 
 const calendarHandler: SignalHandler<CalendarSignal> = {
   handleSignal: async (editor, signal, existingSignalId) => {
-    // To be implemented with proper calendar UI
-    const now = new Date();
-    const signalId = existingSignalId || generateSignalId();
-    await signal.render(editor, now, signalId);
+    // Create a date picker dialog
+    return new Promise<void>((resolve) => {
+      const dialog = editor.windowManager.open({
+        title: 'Select Date',
+        body: {
+          type: 'panel',
+          items: [
+            {
+              type: 'htmlpanel',
+              html: '<div style="margin-bottom: 8px;">Select a date to calculate time elapsed since then:</div>'
+            },
+            {
+              type: 'bar',
+              items: [
+                {
+                  type: 'input',
+                  name: 'date',
+                  label: 'Date',
+                  inputMode: 'text',
+                },
+                {
+                  type: 'button',
+                  text: 'Today',
+                  buttonType: 'secondary',
+                  name: 'today-button'
+                }
+              ]
+            }
+          ]
+        },
+        initialData: {
+          date: new Date().toISOString().split('T')[0]
+        },
+        size: 'normal',
+        buttons: [
+          {
+            type: 'cancel',
+            text: 'Cancel'
+          },
+          {
+            type: 'submit',
+            text: 'OK',
+            primary: true
+          }
+        ],
+        onAction: (api, details) => {
+          if (details.name === 'today-button') {
+            api.setData({ date: new Date().toISOString().split('T')[0] });
+          }
+        },
+        onSubmit: (api) => {
+          const data = api.getData();
+          const selectedDate = new Date(data.date);
+          const signalId = existingSignalId || generateSignalId();
+          
+          if (signal.render) {
+            signal.render(editor, selectedDate, signalId);
+          }
+          
+          api.close();
+          resolve();
+        },
+        onCancel: () => {
+          resolve();
+        }
+      });
+
+      // Make the input a date type after dialog is rendered
+      setTimeout(() => {
+        const input = document.querySelector('.tox-dialog input[type="text"]');
+        if (input instanceof HTMLInputElement) {
+          input.type = 'date';
+          input.style.minWidth = '200px';
+        }
+      }, 100);
+    });
   }
 };
 
@@ -114,6 +198,16 @@ export const signals: Signal[] = [
         <span style="font-size: 1.2em;">👋</span>
       </div>`;
       editor.insertContent(wrapWithSignal(formattedGreeting, signalId, '@hello'));
+    }
+  },
+  {
+    trigger: '@since',
+    type: 'calendar',
+    description: 'Insert a relative time from a date',
+    format: 'yyyy-MM-dd',
+    render: async (editor, date, signalId) => {
+      const content = createRelativeTimeElement(date);
+      editor.insertContent(wrapWithSignal(content, signalId, '@since'));
     }
   }
 ];
@@ -153,6 +247,10 @@ export const setupSignalInteractions = (editor: TinyMCEEditor) => {
       .signal-content * {
         pointer-events: none;
       }
+      .signal-content .relative-time {
+        color: #4a90e2;
+        font-weight: 500;
+      }
       .tox-tbtn {
         margin: 0 !important;
       }
@@ -171,6 +269,22 @@ export const setupSignalInteractions = (editor: TinyMCEEditor) => {
           node.attr('contenteditable', 'false');
         }
       });
+    });
+
+    // Set up periodic updates for relative times
+    const updateRelativeTimes = () => {
+      editor.dom.select('.signal-content time.relative-time').forEach((timeElement) => {
+        const date = new Date(timeElement.getAttribute('datetime') || '');
+        timeElement.textContent = formatDistanceToNow(date, { addSuffix: true });
+      });
+    };
+
+    // Update relative times every minute
+    const updateInterval = setInterval(updateRelativeTimes, 60000);
+
+    // Clean up interval on editor removal
+    editor.on('remove', () => {
+      clearInterval(updateInterval);
     });
   });
 
