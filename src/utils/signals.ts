@@ -1,5 +1,11 @@
 import { Editor as TinyMCEEditor } from 'tinymce';
 import { formatDistanceToNow } from 'date-fns';
+import dynamic from 'next/dynamic';
+import SignalDatePicker from '@/components/SignalDatePicker';
+
+const SignalDatePickerDynamic = dynamic(() => import('@/components/SignalDatePicker'), {
+  ssr: false
+});
 
 export type SignalImplementationType = 'text-input' | 'calendar' | 'static';
 
@@ -93,81 +99,47 @@ const staticHandler: SignalHandler<StaticSignal> = {
 
 const calendarHandler: SignalHandler<CalendarSignal> = {
   handleSignal: async (editor, signal, existingSignalId) => {
-    // Create a date picker dialog
     return new Promise<void>((resolve) => {
-      const dialog = editor.windowManager.open({
-        title: 'Select Date',
-        body: {
-          type: 'panel',
-          items: [
-            {
-              type: 'htmlpanel',
-              html: '<div style="margin-bottom: 8px;">Select a date to calculate time elapsed since then:</div>'
-            },
-            {
-              type: 'bar',
-              items: [
-                {
-                  type: 'input',
-                  name: 'date',
-                  label: 'Date',
-                  inputMode: 'text',
-                },
-                {
-                  type: 'button',
-                  text: 'Today',
-                  buttonType: 'secondary',
-                  name: 'today-button'
-                }
-              ]
-            }
-          ]
-        },
-        initialData: {
-          date: new Date().toISOString().split('T')[0]
-        },
-        size: 'normal',
-        buttons: [
-          {
-            type: 'cancel',
-            text: 'Cancel'
-          },
-          {
-            type: 'submit',
-            text: 'OK',
-            primary: true
+      // Create a container for our React component
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      // Create the React root
+      const { createRoot } = require('react-dom/client');
+      const root = createRoot(container);
+
+      const handleClose = () => {
+        root.unmount();
+        container.remove();
+        resolve();
+      };
+
+      const handleConfirm = (date: Date) => {
+        const signalId = existingSignalId || generateSignalId();
+        if (signal.render) {
+          if (existingSignalId) {
+            // If we're editing an existing signal, replace its content
+            const content = createRelativeTimeElement(date);
+            const wrappedContent = wrapWithSignal(content, signalId, signal.trigger);
+            replaceSignalContent(editor, signalId, wrappedContent);
+          } else {
+            // If it's a new signal, insert at cursor
+            signal.render(editor, date, signalId);
           }
-        ],
-        onAction: (api, details) => {
-          if (details.name === 'today-button') {
-            api.setData({ date: new Date().toISOString().split('T')[0] });
-          }
-        },
-        onSubmit: (api) => {
-          const data = api.getData();
-          const selectedDate = new Date(data.date);
-          const signalId = existingSignalId || generateSignalId();
-          
-          if (signal.render) {
-            signal.render(editor, selectedDate, signalId);
-          }
-          
-          api.close();
-          resolve();
-        },
-        onCancel: () => {
-          resolve();
         }
+        handleClose();
+      };
+
+      // Use dynamic import for React to avoid TypeScript JSX errors
+      const React = require('react');
+      const element = React.createElement(SignalDatePickerDynamic, {
+        isOpen: true,
+        onClose: handleClose,
+        onConfirm: handleConfirm
       });
 
-      // Make the input a date type after dialog is rendered
-      setTimeout(() => {
-        const input = document.querySelector('.tox-dialog input[type="text"]');
-        if (input instanceof HTMLInputElement) {
-          input.type = 'date';
-          input.style.minWidth = '200px';
-        }
-      }, 100);
+      // Render the date picker
+      root.render(element);
     });
   }
 };
