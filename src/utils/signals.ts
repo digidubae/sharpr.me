@@ -7,7 +7,7 @@ const SignalDatePickerDynamic = dynamic(() => import('@/components/SignalDatePic
   ssr: false
 });
 
-export type SignalImplementationType = 'text-input' | 'calendar' | 'static';
+export type SignalImplementationType = 'calendar' | 'static';
 
 export interface BaseSignal {
   trigger: string;
@@ -20,21 +20,13 @@ export interface StaticSignal extends BaseSignal {
   render: (editor: TinyMCEEditor, signalId: string) => Promise<void>;
 }
 
-export interface TextInputSignal extends BaseSignal {
-  type: 'text-input';
-  placeholder?: string;
-  defaultValue?: string;
-  label: string;
-  render: (editor: TinyMCEEditor, value: string, signalId: string) => Promise<void>;
-}
-
 export interface CalendarSignal extends BaseSignal {
   type: 'calendar';
   format?: string;
   render: (editor: TinyMCEEditor, date: Date, signalId: string) => Promise<void>;
 }
 
-export type Signal = StaticSignal | TextInputSignal | CalendarSignal;
+export type Signal = StaticSignal | CalendarSignal;
 
 export interface SignalHandler<T extends Signal> {
   handleSignal: (editor: TinyMCEEditor, signal: T, existingSignalId?: string) => Promise<void>;
@@ -66,28 +58,6 @@ const createRelativeTimeElement = (date: Date) => {
   >
     ${formatDistanceToNow(date, { addSuffix: true })}
   </time>`;
-};
-
-// Signal Handlers
-const textInputHandler: SignalHandler<TextInputSignal> = {
-  handleSignal: async (editor, signal, existingSignalId) => {
-    const value = prompt(signal.label, signal.defaultValue || '');
-    if (value !== null) {
-      const signalId = existingSignalId || generateSignalId();
-      if (existingSignalId) {
-        // If we're editing an existing signal, replace its content
-        const formattedGreeting = `<div class="greeting">
-          <span style="font-weight: bold; color: #4a90e2;">${value}</span>
-          <span style="font-size: 1.2em;">👋</span>
-        </div>`;
-        const wrappedContent = wrapWithSignal(formattedGreeting, signalId, signal.trigger);
-        replaceSignalContent(editor, signalId, wrappedContent);
-      } else {
-        // If it's a new signal, insert at cursor
-        await signal.render(editor, value, signalId);
-      }
-    }
-  }
 };
 
 const staticHandler: SignalHandler<StaticSignal> = {
@@ -146,32 +116,15 @@ const calendarHandler: SignalHandler<CalendarSignal> = {
 
 // Map of handlers for each signal type
 export const signalHandlers: {
-  'text-input': SignalHandler<TextInputSignal>;
   'static': SignalHandler<StaticSignal>;
   'calendar': SignalHandler<CalendarSignal>;
 } = {
-  'text-input': textInputHandler,
   'static': staticHandler,
   'calendar': calendarHandler
 };
 
 // Signal definitions
 export const signals: Signal[] = [
-  {
-    trigger: '@hello',
-    type: 'text-input',
-    description: 'Insert a custom greeting',
-    label: 'Enter your greeting message:',
-    placeholder: 'Hello World!',
-    defaultValue: 'Hello ',
-    render: async (editor, value, signalId) => {
-      const formattedGreeting = `<div class="greeting">
-        <span style="font-weight: bold; color: #4a90e2;">${value}</span>
-        <span style="font-size: 1.2em;">👋</span>
-      </div>`;
-      editor.insertContent(wrapWithSignal(formattedGreeting, signalId, '@hello'));
-    }
-  },
   {
     trigger: '@since',
     type: 'calendar',
