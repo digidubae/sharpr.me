@@ -53,7 +53,7 @@ const replaceSignalContent = (editor: TinyMCEEditor, signalId: string, content: 
 const createRelativeTimeElement = (date: Date) => {
   return `<time 
     datetime="${date.toISOString()}" 
-    title="${date.toLocaleDateString()}"
+    title="${date.toLocaleDateString()} ${date.toLocaleTimeString()}"
     class="relative-time"
   >
     ${formatDistanceToNow(date, { addSuffix: true })}
@@ -123,6 +123,25 @@ export const signalHandlers: {
   'calendar': calendarHandler
 };
 
+// Set up periodic updates for relative times
+const setupUpdateInterval = (editor: TinyMCEEditor) => {
+  const updateRelativeTimes = () => {
+    editor.dom.select('.signal-content time.relative-time').forEach((timeElement) => {
+      const date = new Date(timeElement.getAttribute('datetime') || '');
+      timeElement.textContent = formatDistanceToNow(date, { addSuffix: true });
+    });
+  };
+
+  // Initial update
+  updateRelativeTimes();
+
+  // Update every minute
+  const updateInterval = setInterval(updateRelativeTimes, 60000);
+
+  // Return cleanup function
+  return () => clearInterval(updateInterval);
+};
+
 // Signal definitions
 export const signals: Signal[] = [
   {
@@ -133,6 +152,9 @@ export const signals: Signal[] = [
     render: async (editor, date, signalId) => {
       const content = createRelativeTimeElement(date);
       editor.insertContent(wrapWithSignal(content, signalId, '@since'));
+      
+      // Properly trigger NodeChange event
+      editor.nodeChanged();
     }
   }
 ];
@@ -151,7 +173,8 @@ export const handleSignal = async (editor: TinyMCEEditor, signal: Signal, existi
 
 // Setup function to initialize TinyMCE with signal interaction support
 export const setupSignalInteractions = (editor: TinyMCEEditor) => {
-  // Add custom CSS for signal styling
+  let cleanupInterval: (() => void) | null = null;
+
   editor.on('init', () => {
     editor.dom.addStyle(`
       .signal-content {
@@ -196,21 +219,30 @@ export const setupSignalInteractions = (editor: TinyMCEEditor) => {
       });
     });
 
-    // Set up periodic updates for relative times
-    const updateRelativeTimes = () => {
-      editor.dom.select('.signal-content time.relative-time').forEach((timeElement) => {
-        const date = new Date(timeElement.getAttribute('datetime') || '');
-        timeElement.textContent = formatDistanceToNow(date, { addSuffix: true });
-      });
-    };
-
-    // Update relative times every minute
-    const updateInterval = setInterval(updateRelativeTimes, 60000);
+    // Set up initial interval
+    cleanupInterval = setupUpdateInterval(editor);
 
     // Clean up interval on editor removal
     editor.on('remove', () => {
-      clearInterval(updateInterval);
+      if (cleanupInterval) {
+        cleanupInterval();
+      }
     });
+  });
+
+  // Listen for content changes to reinitialize interval if needed
+  editor.on('NodeChange', () => {
+    const hasTimeElements = editor.dom.select('.signal-content time.relative-time').length > 0;
+    
+    // If we have time elements but no interval, set it up
+    if (hasTimeElements && !cleanupInterval) {
+      cleanupInterval = setupUpdateInterval(editor);
+    }
+    // If we have no time elements but have an interval, clean it up
+    else if (!hasTimeElements && cleanupInterval) {
+      cleanupInterval();
+      cleanupInterval = null;
+    }
   });
 
   // Register the edit button

@@ -26,6 +26,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import RemindDialog from "./RemindDialog";
+import { formatDistanceToNow } from "date-fns";
 
 // Update the PinIcon component to accept a filled prop
 function PinIcon({ filled = false }: { filled?: boolean }) {
@@ -786,6 +787,25 @@ export default function SubjectList({
     const maxOrder = Math.max(...subjects.map((s) => s.order)) + 1000;
     updateSubject(id, { order: maxOrder });
   };
+
+  // Add time update functionality for signals
+  useEffect(() => {
+    const updateSignalTimes = () => {
+      const timeElements = document.querySelectorAll('.signal-content time.relative-time');
+      timeElements.forEach((timeElement) => {
+        const date = new Date(timeElement.getAttribute('datetime') || '');
+        timeElement.textContent = formatDistanceToNow(date, { addSuffix: true });
+      });
+    };
+
+    // Initial update
+    updateSignalTimes();
+
+    // Update every minute
+    const updateInterval = setInterval(updateSignalTimes, 60000);
+
+    return () => clearInterval(updateInterval);
+  }, [filteredAndSortedSubjects]); // Re-run when subjects change
 
   return (
     <div className="space-y-4">
