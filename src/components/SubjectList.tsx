@@ -144,7 +144,19 @@ export default function SubjectList({
 
   const getHighlightedContent = useMemo(() => {
     const highlightText = (content: string) => {
-      if (!searchQuery) return content;
+      if (!searchQuery) {
+        // When there's no search query, we still need to process time elements
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = content;
+
+        // Update all time elements
+        tempDiv.querySelectorAll('.signal-content time.relative-time').forEach((timeElement) => {
+          const date = new Date(timeElement.getAttribute('datetime') || '');
+          timeElement.textContent = formatDistanceToNow(date, { addSuffix: true });
+        });
+
+        return tempDiv.innerHTML;
+      }
 
       // Create a temporary div to parse HTML content
       const tempDiv = document.createElement("div");
@@ -171,6 +183,12 @@ export default function SubjectList({
           node.nodeType === Node.ELEMENT_NODE &&
           !(node as Element).matches("mark, img, code, pre")
         ) {
+          // Update time elements while processing nodes
+          if ((node as Element).matches('.signal-content time.relative-time')) {
+            const timeElement = node as Element;
+            const date = new Date(timeElement.getAttribute('datetime') || '');
+            timeElement.textContent = formatDistanceToNow(date, { addSuffix: true });
+          }
           // Recursively process child nodes, but skip already highlighted text and specific elements
           Array.from(node.childNodes).forEach(highlightTextNode);
         }
@@ -805,7 +823,7 @@ export default function SubjectList({
     const updateInterval = setInterval(updateSignalTimes, 60000);
 
     return () => clearInterval(updateInterval);
-  }, [filteredAndSortedSubjects]); // Re-run when subjects change
+  }, [subjects]); // Re-run when subjects change directly
 
   return (
     <div className="space-y-4">

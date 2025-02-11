@@ -155,6 +155,13 @@ export const signals: Signal[] = [
       
       // Properly trigger NodeChange event
       editor.nodeChanged();
+      
+      // Immediately update the newly inserted time element
+      const timeElement = editor.dom.select(`[data-signal-id="${signalId}"] time.relative-time`)[0];
+      if (timeElement) {
+        const date = new Date(timeElement.getAttribute('datetime') || '');
+        timeElement.textContent = formatDistanceToNow(date, { addSuffix: true });
+      }
     }
   }
 ];
@@ -174,6 +181,14 @@ export const handleSignal = async (editor: TinyMCEEditor, signal: Signal, existi
 // Setup function to initialize TinyMCE with signal interaction support
 export const setupSignalInteractions = (editor: TinyMCEEditor) => {
   let cleanupInterval: (() => void) | null = null;
+
+  // Helper function to update all time elements
+  const updateAllTimeElements = () => {
+    editor.dom.select('.signal-content time.relative-time').forEach((timeElement) => {
+      const date = new Date(timeElement.getAttribute('datetime') || '');
+      timeElement.textContent = formatDistanceToNow(date, { addSuffix: true });
+    });
+  };
 
   editor.on('init', () => {
     editor.dom.addStyle(`
@@ -229,6 +244,9 @@ export const setupSignalInteractions = (editor: TinyMCEEditor) => {
       }
     });
   });
+
+  // Update times when content is loaded or changed
+  editor.on('LoadContent SetContent', updateAllTimeElements);
 
   // Listen for content changes to reinitialize interval if needed
   editor.on('NodeChange', () => {
