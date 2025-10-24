@@ -73,6 +73,7 @@ export default function SubjectList({
   const [editForm, setEditForm] = useState({ content: "", tags: "" });
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const contentEditableRef = useRef<HTMLDivElement>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     isOpen: boolean;
     subjectId: number | null;
@@ -295,6 +296,10 @@ export default function SubjectList({
             return newIndex;
           });
           break;
+        case "c":
+          e.preventDefault();
+          setIsCollapsed((prev) => !prev);
+          break;
         case "Enter":
           if (
             selectedIndex >= 0 &&
@@ -389,6 +394,18 @@ export default function SubjectList({
       selection?.addRange(range);
     }
   }, [editingId]);
+
+  const getFirstLine = useCallback((html: string, existingTextContent?: string) => {
+    // Preserve simple line breaks from <br> and </p> before stripping tags
+    const withLineBreaks = (html || "")
+      .replace(/<br\s*\/?\>/gi, "\n")
+      .replace(/<\/p>/gi, "\n");
+    const plain = (existingTextContent && existingTextContent.trim())
+      ? existingTextContent
+      : withLineBreaks.replace(/<[^>]+>/g, "");
+    const lines = plain.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    return lines[0] || "";
+  }, []);
 
   const handleSaveEdit = (id: number) => {
     const processedContent = editForm.content.replace(
@@ -1097,35 +1114,49 @@ export default function SubjectList({
                             ) : (
                               // View mode
                               <>
-                                <div
-                                  className={`prose dark:prose-invert max-w-none ${
-                                    subject.completed
-                                      ? "line-through text-gray-400 dark:text-gray-500"
-                                      : ""
-                                  }`}
-                                  dangerouslySetInnerHTML={{
-                                    __html:
-                                      getHighlightedContent.get(subject.id) ||
-                                      subject.content,
-                                  }}
-                                />
-                                <div className="flex flex-wrap gap-2 mt-4 mb-4">
-                                  {subject.tags
-                                    .filter((tag) => tag.trim() !== "")
-                                    .map((tag, index) => (
-                                      <span
-                                        key={index}
-                                        className={`px-2 py-1 rounded-full text-sm ${
-                                          subject.completed
-                                            ? "bg-gray-100 dark:bg-gray-700 text-gray-400"
-                                            : "bg-gray-100 dark:bg-gray-700"
-                                        }`}
-                                      >
-                                        {tag}
-                                      </span>
-                                    ))}
-                                </div>
-                                {index === selectedIndex && (
+                                {isCollapsed ? (
+                                  <div
+                                    className={`max-w-none ${
+                                      subject.completed
+                                        ? "line-through text-gray-400 dark:text-gray-500"
+                                        : ""
+                                    } whitespace-nowrap overflow-hidden text-ellipsis`}
+                                  >
+                                    {getFirstLine(subject.content, subject.textContent)}
+                                  </div>
+                                ) : (
+                                  <div
+                                    className={`prose dark:prose-invert max-w-none ${
+                                      subject.completed
+                                        ? "line-through text-gray-400 dark:text-gray-500"
+                                        : ""
+                                    }`}
+                                    dangerouslySetInnerHTML={{
+                                      __html:
+                                        getHighlightedContent.get(subject.id) ||
+                                        subject.content,
+                                    }}
+                                  />
+                                )}
+                                {!isCollapsed && (
+                                  <div className="flex flex-wrap gap-2 mt-4 mb-4">
+                                    {subject.tags
+                                      .filter((tag) => tag.trim() !== "")
+                                      .map((tag, index) => (
+                                        <span
+                                          key={index}
+                                          className={`px-2 py-1 rounded-full text-sm ${
+                                            subject.completed
+                                              ? "bg-gray-100 dark:bg-gray-700 text-gray-400"
+                                              : "bg-gray-100 dark:bg-gray-700"
+                                          }`}
+                                        >
+                                          {tag}
+                                        </span>
+                                      ))}
+                                  </div>
+                                )}
+                                {!isCollapsed && index === selectedIndex && (
                                   <div className="flex gap-2 items-center">
                                     <button
                                       onClick={() => handleEdit(subject)}
