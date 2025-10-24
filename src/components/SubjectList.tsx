@@ -74,6 +74,7 @@ export default function SubjectList({
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const contentEditableRef = useRef<HTMLDivElement>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [expandedSubjectIds, setExpandedSubjectIds] = useState<Set<number>>(new Set());
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     isOpen: boolean;
     subjectId: number | null;
@@ -300,6 +301,36 @@ export default function SubjectList({
           e.preventDefault();
           setIsCollapsed((prev) => !prev);
           break;
+        case "ArrowRight":
+          if (
+            isCollapsed &&
+            selectedIndex >= 0 &&
+            selectedIndex < filteredAndSortedSubjects.length
+          ) {
+            e.preventDefault();
+            const id = filteredAndSortedSubjects[selectedIndex].id;
+            setExpandedSubjectIds((prev) => {
+              const next = new Set(prev);
+              next.add(id);
+              return next;
+            });
+          }
+          break;
+        case "ArrowLeft":
+          if (
+            isCollapsed &&
+            selectedIndex >= 0 &&
+            selectedIndex < filteredAndSortedSubjects.length
+          ) {
+            e.preventDefault();
+            const id = filteredAndSortedSubjects[selectedIndex].id;
+            setExpandedSubjectIds((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          }
+          break;
         case "Enter":
           if (
             selectedIndex >= 0 &&
@@ -378,6 +409,7 @@ export default function SubjectList({
     hideCompleted,
     isDialogOpen,
     updateSubject,
+    isCollapsed,
   ]); // Remove readOnly from dependencies
 
   // Focus the contentEditable div when entering edit mode
@@ -394,6 +426,13 @@ export default function SubjectList({
       selection?.addRange(range);
     }
   }, [editingId]);
+
+  // Reset per-subject expanded state when exiting collapsed mode
+  useEffect(() => {
+    if (!isCollapsed && expandedSubjectIds.size > 0) {
+      setExpandedSubjectIds(new Set());
+    }
+  }, [isCollapsed, expandedSubjectIds.size]);
 
   const getFirstLine = useCallback((html: string, existingTextContent?: string) => {
     // Preserve simple line breaks from <br> and </p> before stripping tags
@@ -1114,7 +1153,7 @@ export default function SubjectList({
                             ) : (
                               // View mode
                               <>
-                                {isCollapsed ? (
+                                {isCollapsed && !expandedSubjectIds.has(subject.id) ? (
                                   <div
                                     className={`max-w-none ${
                                       subject.completed
@@ -1138,25 +1177,23 @@ export default function SubjectList({
                                     }}
                                   />
                                 )}
-                                {!isCollapsed && (
-                                  <div className="flex flex-wrap gap-2 mt-4 mb-4">
-                                    {subject.tags
-                                      .filter((tag) => tag.trim() !== "")
-                                      .map((tag, index) => (
-                                        <span
-                                          key={index}
-                                          className={`px-2 py-1 rounded-full text-sm ${
-                                            subject.completed
-                                              ? "bg-gray-100 dark:bg-gray-700 text-gray-400"
-                                              : "bg-gray-100 dark:bg-gray-700"
-                                          }`}
-                                        >
-                                          {tag}
-                                        </span>
-                                      ))}
-                                  </div>
-                                )}
-                                {!isCollapsed && index === selectedIndex && (
+                                <div className="flex flex-wrap gap-2 mt-4 mb-4">
+                                  {subject.tags
+                                    .filter((tag) => tag.trim() !== "")
+                                    .map((tag, index) => (
+                                      <span
+                                        key={index}
+                                        className={`px-2 py-1 rounded-full text-sm ${
+                                          subject.completed
+                                            ? "bg-gray-100 dark:bg-gray-700 text-gray-400"
+                                            : "bg-gray-100 dark:bg-gray-700"
+                                        }`}
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                </div>
+                                {(!isCollapsed || expandedSubjectIds.has(subject.id)) && index === selectedIndex && (
                                   <div className="flex gap-2 items-center">
                                     <button
                                       onClick={() => handleEdit(subject)}

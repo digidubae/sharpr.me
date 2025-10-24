@@ -65,6 +65,8 @@ export default function ShortcutsHelpDialog({ isOpen, onClose }: ShortcutsHelpDi
             <ul className="space-y-1">
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">↑</kbd> Previous subject</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">↓</kbd> Next subject</li>
+              <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">→</kbd> Expand selected (collapsed view)</li>
+              <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">←</kbd> Collapse selected (collapsed view)</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">/</kbd> Focus search</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">t</kbd> Jump to top</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">b</kbd> Jump to bottom</li>
@@ -76,6 +78,7 @@ export default function ShortcutsHelpDialog({ isOpen, onClose }: ShortcutsHelpDi
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">a</kbd> Add subject</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Space</kbd> Toggle complete</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">h</kbd> Hide completed</li>
+              <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">c</kbd> Toggle collapsed/full view</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">d</kbd> Delete subject</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Enter</kbd> Edit subject</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">p</kbd> Toggle pin</li>
