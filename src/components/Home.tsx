@@ -16,6 +16,7 @@ import DeleteSpaceDialog from "./DeleteSpaceDialog";
 import EncryptionDialog from "./EncryptionDialog";
 import LoadTime from "./LoadTime";
 import RecoverSnapshotDialog from "./RecoverSnapshotDialog";
+import ShortcutsHelpDialog from "./ShortcutsHelpDialog";
 import Shimmer from "./Shimmer";
 import SwitchSpaceDialog from "./SwitchSpaceDialog";
 import SyncStatus from "./SyncStatus";
@@ -56,6 +57,7 @@ export default function Home() {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [showSwitchSpaceDialog, setShowSwitchSpaceDialog] = useState(false);
   const [showRecoverDialog, setShowRecoverDialog] = useState(false);
+  const [showShortcutsDialog, setShowShortcutsDialog] = useState(false);
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const { invalidateSpaces } = useSpaces();
@@ -145,6 +147,32 @@ export default function Home() {
 
     loadExampleData();
   }, [id, setTitle, setSubjects, setHideCompleted, setSortOption]);
+
+  // '?' keyboard shortcut help, only on space page
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only when no text inputs are focused
+      if (
+        document.activeElement?.tagName === 'INPUT' ||
+        document.activeElement?.tagName === 'TEXTAREA' ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
+      ) {
+        return;
+      }
+
+      if (e.key === '?') {
+        e.preventDefault();
+        setShowShortcutsDialog(true);
+      } else if (e.shiftKey && e.key === '/') {
+        // Some keyboards produce Shift + '/' instead of '?'
+        e.preventDefault();
+        setShowShortcutsDialog(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handlePasswordSubmit = async (password: string) => {
     if (isExample) return;
@@ -1020,6 +1048,10 @@ export default function Home() {
 
           {!isExample && (
             <>
+              <ShortcutsHelpDialog
+                isOpen={showShortcutsDialog}
+                onClose={() => setShowShortcutsDialog(false)}
+              />
               <DeleteSpaceDialog
                 isOpen={showDeleteSpaceDialog}
                 onClose={() => setShowDeleteSpaceDialog(false)}
