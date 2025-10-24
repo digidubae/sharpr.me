@@ -31,6 +31,18 @@ export default function RichTextEditor({
     setMounted(true);
   }, []);
 
+  // Listen for a global flush event to push latest content to parent state
+  useEffect(() => {
+    const handleFlush = () => {
+      if (editorRef.current) {
+        const latest = editorRef.current.getContent();
+        onChange(latest);
+      }
+    };
+    document.addEventListener('sharpr:flush-editor', handleFlush);
+    return () => document.removeEventListener('sharpr:flush-editor', handleFlush);
+  }, [onChange]);
+
   if (!mounted) {
     return <div className={`h-[300px] w-full bg-${isDarkMode ? 'gray-800' : 'white'} rounded-md border border-gray-200 dark:border-gray-700`} />;
   }
@@ -173,6 +185,14 @@ export default function RichTextEditor({
           : undefined,
         setup: (editor) => {
           editor.on("keydown", (e) => {
+            // Ensure latest content is flushed before external handlers on save combos
+            const isCmdShiftS = (e as any).metaKey && (e as any).shiftKey && ((e as any).key === 's' || (e as any).key === 'S');
+            const isCtrlEnter = (e as any).ctrlKey && (e as any).key === 'Enter';
+            const isCmdEnter = (e as any).metaKey && (e as any).key === 'Enter';
+            if (isCmdShiftS || isCtrlEnter || isCmdEnter) {
+              const latest = editor.getContent();
+              onChange(latest);
+            }
             if (onKeyDown) {
               onKeyDown(e as unknown as KeyboardEvent);
             }

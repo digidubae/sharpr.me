@@ -72,6 +72,7 @@ export default function SubjectList({
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ content: "", tags: "" });
+  const editFormRef = useRef<{ content: string; tags: string }>({ content: "", tags: "" });
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const contentEditableRef = useRef<HTMLDivElement>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -253,11 +254,25 @@ export default function SubjectList({
         content: subject.content,
         tags: subject.tags.join(", "),
       });
+      editFormRef.current = { content: subject.content, tags: subject.tags.join(", ") };
     }, 0);
   }, []); // Remove readOnly dependency
 
   useEffect(() => {
     const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      // Allow save while editing even if the editor isn't focused
+      if (
+        editingId !== null &&
+        (e.key === "s" || e.key === "S") &&
+        e.metaKey &&
+        e.shiftKey
+      ) {
+        e.preventDefault();
+        // Flush latest editor content to state before saving
+        document.dispatchEvent(new Event('sharpr:flush-editor'));
+        handleSaveEdit(editingId);
+        return;
+      }
       // Always allow Shift+Escape to exit edit mode, regardless of focus
       if (e.key === "Escape" && e.shiftKey) {
         if (editingId !== null) {
@@ -270,7 +285,7 @@ export default function SubjectList({
       // Don't handle keyboard shortcuts when dialog is open
       if (isDialogOpen) return;
 
-      // Don't handle keyboard shortcuts when in edit mode
+      // Don't handle other keyboard shortcuts when in edit mode
       if (editingId !== null) return;
 
       // Don't handle shortcuts when focus is in input/textarea/contenteditable
@@ -468,12 +483,18 @@ export default function SubjectList({
   }, []);
 
   const handleSaveEdit = (id: number) => {
-    const processedContent = editForm.content.replace(
+    const pendingTag = tagInputRef.current?.value?.trim().toLowerCase();
+    const tagsBase = editFormRef.current.tags || editForm.tags;
+    const tagsWithPending = pendingTag
+      ? (tagsBase ? `${tagsBase}, ${pendingTag}` : pendingTag)
+      : tagsBase;
+
+    const processedContent = (editFormRef.current.content || editForm.content).replace(
       /(<[^>]+>|data:image\/[^;]+;base64,[^"]+)/g,
       ""
     );
 
-    const newTags = editForm.tags
+    const newTags = (tagsWithPending || "")
       .split(",")
       .map((tag) => tag.trim().toLowerCase())
       .filter(Boolean);
@@ -497,7 +518,7 @@ export default function SubjectList({
 
     // Update the UI state
     updateSubject(id, {
-      content: editForm.content,
+      content: editFormRef.current.content || editForm.content,
       textContent: processedContent,
       tags: newTags,
     });
@@ -582,9 +603,11 @@ export default function SubjectList({
         .map((t) => t.trim())
         .includes(newTag)
     ) {
+      const updated = editForm.tags ? `${editForm.tags}, ${newTag}` : newTag;
+      editFormRef.current = { ...editFormRef.current, tags: updated };
       setEditForm((prev) => ({
         ...prev,
-        tags: prev.tags ? `${prev.tags}, ${newTag}` : newTag,
+        tags: updated,
       }));
     }
     tagInputRef.current.value = "";
@@ -595,6 +618,7 @@ export default function SubjectList({
   const handleRemoveTag = (tagToRemove: string) => {
     const currentTags = editForm.tags.split(",").map((t) => t.trim());
     const updatedTags = currentTags.filter((tag) => tag !== tagToRemove);
+    editFormRef.current = { ...editFormRef.current, tags: updatedTags.join(", ") };
     setEditForm((prev) => ({
       ...prev,
       tags: updatedTags.join(", "),
@@ -608,9 +632,11 @@ export default function SubjectList({
         .map((t) => t.trim())
         .includes(suggestion)
     ) {
+      const updated = editForm.tags ? `${editForm.tags}, ${suggestion}` : suggestion;
+      editFormRef.current = { ...editFormRef.current, tags: updated };
       setEditForm((prev) => ({
         ...prev,
-        tags: prev.tags ? `${prev.tags}, ${suggestion}` : suggestion,
+        tags: updated,
       }));
     }
     setShowTagSuggestions(false);
@@ -660,11 +686,17 @@ export default function SubjectList({
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent, subjectId?: number) => {
+    // Save on Cmd+Shift+S (Mac)
+    if ((e.key === "s" || e.key === "S") && e.metaKey && e.shiftKey) {
+      e.preventDefault();
+      handleSaveEdit(subjectId ?? editingId!);
+      return;
+    }
     // Save on Ctrl+Enter or Cmd+Enter
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
-      handleSaveEdit(editingId!);
+      handleSaveEdit(subjectId ?? editingId!);
     }
     // Exit edit mode on Shift+Escape
     if (e.key === "Escape" && e.shiftKey) {
@@ -1063,13 +1095,14 @@ export default function SubjectList({
                               <div>
                                 <RichTextEditor
                                   content={editForm.content}
-                                  onChange={(newContent) =>
+                                  onChange={(newContent) => {
+                                    editFormRef.current = { ...editFormRef.current, content: newContent };
                                     setEditForm((prev) => ({
                                       ...prev,
                                       content: newContent,
-                                    }))
-                                  }
-                                  onKeyDown={handleKeyDown}
+                                    }));
+                                  }}
+                                  onKeyDown={(e) => handleKeyDown(e, subject.id)}
                                 />
                                 <div className="relative mt-4">
                                   <div className="flex flex-wrap gap-2 mb-2">
