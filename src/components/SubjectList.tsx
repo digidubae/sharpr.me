@@ -314,6 +314,15 @@ export default function SubjectList({
               next.add(id);
               return next;
             });
+            // Scroll expanded subject into view after layout updates
+            requestAnimationFrame(() => {
+              if (selectedSubjectRef.current) {
+                selectedSubjectRef.current.scrollIntoView({
+                  behavior: "smooth",
+                  block: "nearest",
+                });
+              }
+            });
           }
           break;
         case "ArrowLeft":
