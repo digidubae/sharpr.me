@@ -16,6 +16,7 @@ export default function AddSubjectForm() {
   const tagInputRef = useRef<HTMLInputElement>(null);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<number>(-1);
   const [isAddingTag, setIsAddingTag] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: globalThis.KeyboardEvent) => {
@@ -34,6 +35,35 @@ export default function AddSubjectForm() {
         setIsExpanded(false);
         setContent("");
         setTags("");
+      }
+
+      // Exit add mode on Shift+Escape, regardless of focus
+      if (e.key === 'Escape' && e.shiftKey && isExpanded) {
+        e.preventDefault();
+        setIsExpanded(false);
+        setContent("");
+        setTags("");
+        return;
+      }
+
+      // Submit on Cmd+Shift+S when expanded
+      if (
+        isExpanded &&
+        (e.key === 's' || e.key === 'S') &&
+        e.metaKey &&
+        e.shiftKey
+      ) {
+        e.preventDefault();
+        // Commit any pending tag input
+        const pending = tagInputRef.current?.value?.trim().toLowerCase();
+        if (pending && !tags.split(',').map(t => t.trim()).includes(pending)) {
+          setTags(prev => prev ? `${prev}, ${pending}` : pending);
+          if (tagInputRef.current) tagInputRef.current.value = '';
+        }
+        // Ensure editor content is flushed (RichTextEditor listens to this)
+        document.dispatchEvent(new Event('sharpr:flush-editor'));
+        // Submit the form through the same path as the button
+        formRef.current?.requestSubmit();
       }
     };
 
@@ -214,11 +244,32 @@ export default function AddSubjectForm() {
             + Add new subject
           </button>
         ) : (
-          <form onSubmit={handleSubmit} className="p-6 space-y-4 animate-fadeIn">
+          <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-4 animate-fadeIn">
             <RichTextEditor
               content={content}
               onChange={setContent}
               autoFocus={true}
+              onKeyDown={(e) => {
+                // Exit add mode on Shift+Escape even when editor is focused
+                if (e.key === 'Escape' && e.shiftKey) {
+                  e.preventDefault();
+                  setIsExpanded(false);
+                  setContent('');
+                  setTags('');
+                  return;
+                }
+                // Submit on Cmd+Shift+S even when editor is focused
+                if ((e.key === 's' || e.key === 'S') && (e as any).metaKey && (e as any).shiftKey) {
+                  e.preventDefault();
+                  const pending = tagInputRef.current?.value?.trim().toLowerCase();
+                  if (pending && !tags.split(',').map(t => t.trim()).includes(pending)) {
+                    setTags(prev => prev ? `${prev}, ${pending}` : pending);
+                    if (tagInputRef.current) tagInputRef.current.value = '';
+                  }
+                  document.dispatchEvent(new Event('sharpr:flush-editor'));
+                  formRef.current?.requestSubmit();
+                }
+              }}
             />
             <div className="relative">
               <div className="flex flex-wrap gap-2 mb-2">
