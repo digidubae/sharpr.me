@@ -639,6 +639,21 @@ export default function SubjectList({
     setDeleteConfirmation({ isOpen: false, subjectId: null });
   };
 
+  const subjectPendingDeletion = useMemo(() => {
+    if (!deleteConfirmation.subjectId) return null;
+    return subjects.find((s) => s.id === deleteConfirmation.subjectId) || null;
+  }, [deleteConfirmation.subjectId, subjects]);
+
+  const deleteSubjectSnippet = useMemo(() => {
+    if (!subjectPendingDeletion) return undefined;
+    const raw =
+      subjectPendingDeletion.textContent ||
+      subjectPendingDeletion.content.replace(/<[^>]+>/g, "");
+    const trimmed = raw.trim();
+    const MAX = 40;
+    return trimmed.length > MAX ? `${trimmed.slice(0, MAX)}…` : trimmed;
+  }, [subjectPendingDeletion]);
+
   // Add this useEffect to handle scrolling
   useEffect(() => {
     if (selectedIndex >= 0 && selectedSubjectRef.current) {
@@ -1225,6 +1240,7 @@ export default function SubjectList({
         isOpen={deleteConfirmation.isOpen}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
+        subjectSnippet={deleteSubjectSnippet}
       />
     </div>
   );

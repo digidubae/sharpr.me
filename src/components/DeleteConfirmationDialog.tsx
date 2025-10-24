@@ -7,9 +7,10 @@ interface DeleteConfirmationDialogProps {
   isOpen: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  subjectSnippet?: string;
 }
 
-export default function DeleteConfirmationDialog({ isOpen, onConfirm, onCancel }: DeleteConfirmationDialogProps) {
+export default function DeleteConfirmationDialog({ isOpen, onConfirm, onCancel, subjectSnippet }: DeleteConfirmationDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const { setIsDialogOpen } = useDialog();
 
@@ -54,7 +55,7 @@ export default function DeleteConfirmationDialog({ isOpen, onConfirm, onCancel }
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl animate-fadeIn">
         <h2 className="text-lg font-semibold mb-4">Confirm Delete</h2>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
-          Are you sure you want to delete this subject?
+          {`Are you sure you want to delete this subject${subjectSnippet ? ` (${subjectSnippet})` : ''}?`}
         </p>
         <div className="flex justify-end gap-3">
           <button
