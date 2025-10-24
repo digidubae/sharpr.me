@@ -35,6 +35,7 @@ export function SubjectProvider({
     initialData?.categories || []
   );
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [excludedTags, setExcludedTags] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncState, setSyncState] = useState<"idle" | "syncing" | "error">(
@@ -100,9 +101,27 @@ export function SubjectProvider({
   }, [subjects, hideCompleted]);
 
   const toggleTag = useCallback((tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+    setSelectedTags((prev) => {
+      const isSelected = prev.includes(tag);
+      const next = isSelected ? prev.filter((t) => t !== tag) : [...prev, tag];
+      if (!isSelected) {
+        // Ensure exclusivity with excluded tags
+        setExcludedTags((prevExcluded) => prevExcluded.filter((t) => t !== tag));
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleExcludedTag = useCallback((tag: string) => {
+    setExcludedTags((prev) => {
+      const isExcluded = prev.includes(tag);
+      const next = isExcluded ? prev.filter((t) => t !== tag) : [...prev, tag];
+      if (!isExcluded) {
+        // Ensure exclusivity with selected tags
+        setSelectedTags((prevSelected) => prevSelected.filter((t) => t !== tag));
+      }
+      return next;
+    });
   }, []);
 
   const addSubject = useCallback((subject: Omit<Subject, "order">) => {
@@ -212,6 +231,11 @@ export function SubjectProvider({
         prevTags.filter(tag => remainingTags.has(tag))
       );
 
+      // Update excludedTags to only include tags that still exist
+      setExcludedTags(prevTags => 
+        prevTags.filter(tag => remainingTags.has(tag))
+      );
+
       return newSubjects;
     });
   }, []);
@@ -247,6 +271,9 @@ export function SubjectProvider({
     selectedTags,
     setSelectedTags,
     toggleTag,
+    excludedTags,
+    setExcludedTags,
+    toggleExcludedTag,
     searchQuery,
     setSearchQuery,
     addSubject,

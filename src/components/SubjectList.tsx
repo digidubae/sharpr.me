@@ -60,6 +60,7 @@ export default function SubjectList({
     subjects,
     searchQuery,
     selectedTags,
+    excludedTags,
     hideCompleted,
     deleteSubject,
     updateSubject,
@@ -115,7 +116,9 @@ export default function SubjectList({
               .toLowerCase()
               .includes(searchQuery.toLowerCase()) &&
             (selectedTags.length === 0 ||
-              selectedTags.every((tag) => subject.tags.includes(tag)))
+              selectedTags.every((tag) => subject.tags.includes(tag))) &&
+            (excludedTags.length === 0 ||
+              excludedTags.every((tag) => !subject.tags.includes(tag)))
           );
         })
         .sort((a, b) => {
@@ -141,7 +144,7 @@ export default function SubjectList({
           // Finally sort by order
           return a.order - b.order;
         }),
-    [subjects, hideCompleted, searchQuery, selectedTags]
+    [subjects, hideCompleted, searchQuery, selectedTags, excludedTags]
   );
 
   const getHighlightedContent = useMemo(() => {
@@ -819,6 +822,13 @@ export default function SubjectList({
       handleTagsChange();
     }
   }, [selectedTags, handleTagsChange]);
+
+  // Reset selection when excluded tags change
+  useEffect(() => {
+    if (excludedTags.length > 0) {
+      handleTagsChange();
+    }
+  }, [excludedTags, handleTagsChange]);
 
   // Add click outside handler
   useEffect(() => {

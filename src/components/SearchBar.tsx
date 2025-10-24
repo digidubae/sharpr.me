@@ -11,6 +11,8 @@ export default function SearchBar() {
     getAllTags, 
     selectedTags, 
     toggleTag,
+    excludedTags,
+    toggleExcludedTag,
     subjects,
     searchQuery,
     hideCompleted,
@@ -41,9 +43,10 @@ export default function SearchBar() {
       
       return (!hideCompleted || !subject.completed) &&
         searchableContent.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (selectedTags.length === 0 || selectedTags.every(tag => subject.tags.includes(tag)));
+        (selectedTags.length === 0 || selectedTags.every(tag => subject.tags.includes(tag))) &&
+        (excludedTags.length === 0 || excludedTags.every(tag => !subject.tags.includes(tag)));
     });
-  }, [subjects, hideCompleted, searchQuery, selectedTags]);
+  }, [subjects, hideCompleted, searchQuery, selectedTags, excludedTags]);
 
   const getTagCount = useCallback((tag: string) => {
     return subjects.filter(subject => 
@@ -265,6 +268,14 @@ export default function SearchBar() {
     return `category-${category.id}-${index}`;
   };
 
+  const handleTagClick = (e: React.MouseEvent, tag: string) => {
+    if (e.shiftKey) {
+      toggleExcludedTag(tag);
+    } else {
+      toggleTag(tag);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -345,14 +356,16 @@ export default function SearchBar() {
                 key={tag}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => toggleTag(tag)}
+                onClick={(e) => handleTagClick(e, tag)}
                 draggable
                 onDragStart={() => handleDragStart(tag)}
                 onDragEnd={handleDragEnd}
                 className={`px-3 py-1 rounded-full text-sm transition-colors duration-200 cursor-grab active:cursor-grabbing
                   ${selectedTags.includes(tag)
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    : excludedTags.includes(tag)
+                      ? 'bg-red-500 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
               >
                 {tag} ({getTagCount(tag)})
@@ -494,14 +507,16 @@ export default function SearchBar() {
                   key={generateUniqueKey(category, categoryIndex, tag, tagIndex)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => toggleTag(tag)}
+                  onClick={(e) => handleTagClick(e, tag)}
                   draggable
                   onDragStart={() => handleDragStart(tag)}
                   onDragEnd={handleDragEnd}
                   className={`px-3 py-1 rounded-full text-sm transition-colors duration-200 cursor-grab active:cursor-grabbing
                     ${selectedTags.includes(tag)
                       ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      : excludedTags.includes(tag)
+                        ? 'bg-red-500 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
                   {tag} ({getTagCount(tag)})

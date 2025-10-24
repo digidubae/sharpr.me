@@ -26,6 +26,9 @@ export interface SubjectContextType {
   selectedTags: string[];
   setSelectedTags: (tags: string[]) => void;
   toggleTag: (tag: string) => void;
+  excludedTags: string[];
+  setExcludedTags: (tags: string[]) => void;
+  toggleExcludedTag: (tag: string) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   addSubject: (subject: Omit<Subject, 'order'>) => void;
