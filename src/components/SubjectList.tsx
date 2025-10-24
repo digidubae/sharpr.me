@@ -258,6 +258,15 @@ export default function SubjectList({
 
   useEffect(() => {
     const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      // Always allow Shift+Escape to exit edit mode, regardless of focus
+      if (e.key === "Escape" && e.shiftKey) {
+        if (editingId !== null) {
+          e.preventDefault();
+          setEditingId(null);
+          return;
+        }
+      }
+
       // Don't handle keyboard shortcuts when dialog is open
       if (isDialogOpen) return;
 
@@ -656,6 +665,11 @@ export default function SubjectList({
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       handleSaveEdit(editingId!);
+    }
+    // Exit edit mode on Shift+Escape
+    if (e.key === "Escape" && e.shiftKey) {
+      e.preventDefault();
+      setEditingId(null);
     }
   };
 

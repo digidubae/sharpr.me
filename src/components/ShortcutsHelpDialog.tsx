@@ -81,6 +81,7 @@ export default function ShortcutsHelpDialog({ isOpen, onClose }: ShortcutsHelpDi
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">c</kbd> Toggle collapsed/full view</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">d</kbd> Delete subject</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Enter</kbd> Edit subject</li>
+              <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Shift + Esc</kbd> Exit edit</li>
               <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">p</kbd> Toggle pin</li>
             </ul>
           </div>
