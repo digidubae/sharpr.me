@@ -1103,6 +1103,7 @@ export default function SubjectList({
                                     }));
                                   }}
                                   onKeyDown={(e) => handleKeyDown(e, subject.id)}
+                                  autoFocus={true}
                                 />
                                 <div className="relative mt-4">
                                   <div className="flex flex-wrap gap-2 mb-2">
