@@ -236,6 +236,16 @@ export function SubjectProvider({
         prevTags.filter(tag => remainingTags.has(tag))
       );
 
+      // Prune category tags that no longer exist and remove empty categories
+      setCategories(prevCategories =>
+        prevCategories
+          .map(cat => ({
+            ...cat,
+            tags: cat.tags.filter(tag => remainingTags.has(tag)),
+          }))
+          .filter(cat => cat.tags.length > 0)
+      );
+
       return newSubjects;
     });
   }, []);
