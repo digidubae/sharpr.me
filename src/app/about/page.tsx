@@ -17,11 +17,12 @@ export default function AboutPage() {
 
           <div className="prose dark:prose-invert max-w-none">
             <section className="mb-8">
+              <blockquote className="mb-4 border-l-4 border-gray-300 dark:border-gray-700 pl-4 italic text-gray-700 dark:text-gray-300">
+                “Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away.”
+                <footer className="mt-2 text-sm not-italic text-gray-600 dark:text-gray-400">— Antoine de Saint-Exupér</footer>
+              </blockquote>
               <p className="mb-4 leading-relaxed">
-                With all the knowledge management tools out there, we just couldn't find the right one for us so we've built one.
-              </p>
-              <p>
-                Sharpr.me is a knowledge management tool without the hassle of all the other tools.  Focusing on simplicity, <Link href="/privacy-policy" className="text-blue-600 dark:text-blue-400 hover:underline">data privacy</Link>, and ease of use, Sharpr.me might just be the right tool for you too 🙂
+                In the age of low barriers to technology and the rise of niche, personalized apps, I built this app to match how my brain is wired — focused, clear, and purposeful. It’s not meant for everyone, <strong>but it just might also happen to be the right tool for you.</strong>
               </p>
             </section>
 
@@ -37,38 +38,7 @@ export default function AboutPage() {
               </ul>
             </section>
 
-            <section className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Keyboard Shortcuts</h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-medium mb-2">Navigation</h3>
-                  <ul className="space-y-1">
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">↑</kbd> Previous subject</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">↓</kbd> Next subject</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">→</kbd> Expand selected (collapsed view)</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">←</kbd> Collapse selected (collapsed view)</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">/</kbd> Focus search</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">⌘ + h</kbd> Home</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">t</kbd> Jump to top subject</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">b</kbd> Jump to bottom subject</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Actions</h3>
-                  <ul className="space-y-1">
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">a</kbd> Add subject</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Space</kbd> Toggle complete</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">h</kbd> Toggle hide completed</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">c</kbd> Toggle collapsed/full view</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">d</kbd> Delete subject</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Enter</kbd> Edit subject</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">⌘ + ⇧ + S</kbd> Save while editing</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Shift + Esc</kbd> Exit edit</li>
-                    <li><kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">p</kbd> Toggle pin</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
+
 
             <div className="text-center mt-8 pt-10">
               <Link
