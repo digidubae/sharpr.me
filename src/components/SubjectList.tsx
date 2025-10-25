@@ -255,6 +255,25 @@ export default function SubjectList({
         tags: subject.tags.join(", "),
       });
       editFormRef.current = { content: subject.content, tags: subject.tags.join(", ") };
+      // Robust ensure-visible when entering edit mode
+      if (isCollapsed) {
+        setExpandedSubjectIds((prev) => {
+          const next = new Set(prev);
+          next.add(subject.id);
+          return next;
+        });
+      }
+      // Wait for DOM to update and editor to mount, then scroll the container
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const el = document.querySelector(`[data-subject-id="${subject.id}"]`);
+          if (el) {
+            (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+          } else if (selectedSubjectRef.current) {
+            selectedSubjectRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        });
+      });
     }, 0);
   }, []); // Remove readOnly dependency
 
@@ -1042,6 +1061,7 @@ export default function SubjectList({
                               : ""
                           }`}
                         onClick={(e) => handleSubjectClick(index, e)}
+                        data-subject-id={subject.id}
                       >
                         <div className="flex items-start gap-4">
                           <div className="flex flex-col gap-2 items-center">
