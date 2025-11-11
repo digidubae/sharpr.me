@@ -6,6 +6,10 @@ export async function middleware(request: NextRequest) {
   // Allow auth-related paths and homepage
   if (request.nextUrl.pathname.startsWith('/api/auth') || 
       request.nextUrl.pathname === '/favicon.ico' ||
+      request.nextUrl.pathname === '/manifest.webmanifest' ||
+      request.nextUrl.pathname === '/sw.js' ||
+      request.nextUrl.pathname === '/icon.svg' ||
+      request.nextUrl.pathname.startsWith('/icons/') ||
       request.nextUrl.pathname === '/' ||
       request.nextUrl.pathname === '/privacy-policy' ||
       request.nextUrl.pathname === '/about' ||
@@ -39,6 +43,6 @@ export const config = {
      * 3. /favicon.ico, /robots.txt (static files)
      * 4. /tinymce (TinyMCE files)
      */
-    '/((?!_next|static|tinymce|favicon.ico|robots.txt).*)',
+    '/((?!_next|static|tinymce|favicon.ico|robots.txt|manifest.webmanifest|sw.js|icon.svg|icons/).*)',
   ],
 }; 

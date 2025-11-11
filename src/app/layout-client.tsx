@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { SubjectProvider } from "@/context/SubjectContext";
 import { SessionProvider } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 function HeaderButtons() {
   const pathname = usePathname();
@@ -31,6 +32,12 @@ export default function LayoutClient({
 }) {
   const pathname = usePathname();
   const isLandingPage = pathname === '/';
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  }, []);
 
   const content = (
     <>

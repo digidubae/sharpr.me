@@ -16,6 +16,7 @@ const font = Inter({ subsets: ["latin"]});
 export const metadata = {
   title: "Sharpr.me",
   description: "Stay sharp with information at your fingertips.",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
