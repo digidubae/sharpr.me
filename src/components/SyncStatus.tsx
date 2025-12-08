@@ -18,7 +18,11 @@ export default function SyncStatus() {
     syncState,
     setSyncState,
     isLocked,
-    isExample
+    isExample,
+    autoSync,
+    hasUnsavedChanges,
+    setHasUnsavedChanges,
+    manualSaveTrigger
   } = useSubjects();
 
   // Use a ref to track the last saved data
@@ -31,7 +35,7 @@ export default function SyncStatus() {
   // Add beforeunload handler
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isSyncing) {
+      if (isSyncing || hasUnsavedChanges) {
         e.preventDefault();
         e.returnValue = 'Changes you made may not be saved. Are you sure you want to leave?';
         return e.returnValue;
@@ -40,7 +44,7 @@ export default function SyncStatus() {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isSyncing]);
+  }, [isSyncing, hasUnsavedChanges]);
 
   const saveData = useCallback(async (data: string) => {
     setIsSyncing(true);
@@ -128,11 +132,14 @@ export default function SyncStatus() {
     } finally {
       setIsSyncing(false);
     }
-  }, [id, isLocked, setIsSyncing, setSyncState]);
+    // Clear unsaved changes flag after successful save
+    setHasUnsavedChanges(false);
+  }, [id, isLocked, setIsSyncing, setSyncState, setHasUnsavedChanges]);
 
+  // Track data changes and update unsaved state
   useEffect(() => {
     console.log('SyncStatus useEffect');
-    // Skip saving on initial mount
+    // Skip on initial mount
     if (isInitialMount.current) {
       // Set initial data reference
       const initialData = JSON.stringify({ id, title, subjects, categories });
@@ -142,33 +149,47 @@ export default function SyncStatus() {
       return;
     }
 
-    let isStale = false;
+    // Create a string representation of current data
+    const currentData = JSON.stringify({ id, title, subjects, categories });
+    latestDataRef.current = currentData;
 
-    const initiateSync = () => {
-      if (isStale || isExample) return;
+    // Check if data has changed from last saved
+    const hasChanges = currentData !== lastSavedDataRef.current;
+    
+    if (isExample) return;
 
-      // Create a string representation of current data
-      const currentData = JSON.stringify({ id, title, subjects, categories });
-      latestDataRef.current = currentData;
-
-      // If this exact data was just saved, skip
-      if (currentData === lastSavedDataRef.current) {
+    // If autoSync is enabled, save automatically
+    if (autoSync) {
+      if (!hasChanges) {
         console.log('SyncStatus useEffect - skipping save - data unchanged');
         return;
       }
 
-      console.log('SyncStatus useEffect - saving data');
+      let isStale = false;
+      const debouncedSave = setTimeout(() => {
+        if (!isStale) {
+          console.log('SyncStatus useEffect - auto-saving data');
+          saveData(currentData);
+        }
+      }, 100);
+      
+      return () => {
+        isStale = true;
+        clearTimeout(debouncedSave);
+      };
+    } else {
+      // Manual sync mode - just track unsaved changes
+      setHasUnsavedChanges(hasChanges);
+    }
+  }, [id, subjects, title, categories, isExample, saveData, autoSync, setHasUnsavedChanges]);
 
-      saveData(currentData);
-    };
-
-    const debouncedSave = setTimeout(initiateSync, 100);
-    
-    return () => {
-      isStale = true;
-      clearTimeout(debouncedSave);
-    };
-  }, [id, subjects, title, categories, isExample, saveData]);
+  // Handle manual save trigger
+  useEffect(() => {
+    if (manualSaveTrigger > 0 && !autoSync && latestDataRef.current) {
+      console.log('SyncStatus - manual save triggered');
+      saveData(latestDataRef.current);
+    }
+  }, [manualSaveTrigger, autoSync, saveData]);
 
   // Skip syncing for example spaces
   if (isExample) {

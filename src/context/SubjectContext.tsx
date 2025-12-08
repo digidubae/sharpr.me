@@ -41,6 +41,9 @@ export function SubjectProvider({
   const [syncState, setSyncState] = useState<"idle" | "syncing" | "error">(
     "idle"
   );
+  const [autoSync, setAutoSync] = useState(true);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [manualSaveTrigger, setManualSaveTrigger] = useState(0);
   const [isInLibrary, setIsInLibrary] = useState(false);
   const [isLocked, setIsLocked] = useState(initialData?.isLocked || false);
   const { data: session } = useSession();
@@ -89,6 +92,29 @@ export function SubjectProvider({
       setHideCompleted(saved ? JSON.parse(saved) : false);
     }
   }, [id]);
+
+  // Load autoSync preference from localStorage
+  useEffect(() => {
+    if (id) {
+      const key = `autoSync_${id}`;
+      const saved = localStorage.getItem(key);
+      if (saved !== null) {
+        setAutoSync(JSON.parse(saved));
+      }
+    }
+  }, [id]);
+
+  // Persist autoSync preference to localStorage
+  const handleSetAutoSync = useCallback((value: boolean) => {
+    setAutoSync(value);
+    if (id) {
+      localStorage.setItem(`autoSync_${id}`, JSON.stringify(value));
+    }
+  }, [id]);
+
+  const triggerManualSave = useCallback(() => {
+    setManualSaveTrigger(prev => prev + 1);
+  }, []);
 
   const getAllTags = useCallback(() => {
     const allTags = new Set<string>();
@@ -295,6 +321,12 @@ export function SubjectProvider({
     setIsSyncing,
     syncState,
     setSyncState,
+    autoSync,
+    setAutoSync: handleSetAutoSync,
+    hasUnsavedChanges,
+    setHasUnsavedChanges,
+    triggerManualSave,
+    manualSaveTrigger,
     isLocked,
     setIsLocked,
     rawData: initialData?.rawData,

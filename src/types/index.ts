@@ -40,6 +40,12 @@ export interface SubjectContextType {
   setIsSyncing: (isSyncing: boolean) => void;
   syncState: 'idle' | 'syncing' | 'error';
   setSyncState: (state: 'idle' | 'syncing' | 'error') => void;
+  autoSync: boolean;
+  setAutoSync: (autoSync: boolean) => void;
+  hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
+  triggerManualSave: () => void;
+  manualSaveTrigger: number;
   isLocked: boolean;
   setIsLocked: (isLocked: boolean) => void;
   rawData?: any;
